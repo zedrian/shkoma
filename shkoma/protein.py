@@ -1,5 +1,6 @@
 class Protein:
-    def __init__(self, id='wrong id', name='wrong name', mw=0.0, pI=0.0, M=0.0, Z=0.0, sequence=''):
+    def __init__(self, id='wrong id', name='wrong name', mw=0.0,
+                 pI=0.0, M=0.0, Z=0.0, sequence=''):
         self.id = id
         self.name = name
         self.mw = mw
@@ -9,8 +10,10 @@ class Protein:
         self.sequence = sequence
 
     def __str__(self):
-        return '(id: \'' + self.id + '\', name: \'' + self.name + '\'' + ', mw: ' + str(self.mw) + ', pI: ' + str(self.pI) + ', M: ' + str(self.M) + ', Z: ' \
-               + str(self.Z) + ', sequence: \'' + self.sequence + '\')'
+        return '(id: \'' + self.id + '\', name: \'' + self.name + '\'' + \
+               ', mw: ' + str(self.mw) + ', pI: ' + str(self.pI) + \
+               ', M: ' + str(self.M) + ', Z: ' + str(self.Z) + \
+               ', sequence: \'' + self.sequence + '\')'
 
     def __repr__(self):
         return 'protein ' + Protein.__str__(self)
