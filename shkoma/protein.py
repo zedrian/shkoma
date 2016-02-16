@@ -22,3 +22,11 @@ class Protein:
         if not isinstance(other, self.__class__):
             return False
         return self.id == other.id
+
+
+def find_protein_with_id(proteins, id):
+    for protein in proteins:
+        if protein.id == id:
+            return protein
+
+    return None
