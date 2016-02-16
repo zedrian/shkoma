@@ -71,7 +71,7 @@ def construct_protein_records(proteins, main_data):
                                              chromatographic_peak_width_in_seconds=line['chromatographicPeakWidthSec'])
 
         # 1.2. get protein id for current analysis
-        current_protein_id = line['accession_number']
+        current_protein_id = b2str(line['accession_number'])
 
         # 1.3. find protein with such id
         protein = find_protein_with_id(proteins,
