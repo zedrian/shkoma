@@ -17,3 +17,11 @@ class PeptideRecord:
             return False
         return self.peptide == other.peptide and \
                self.matches == other.matches
+
+
+def find_peptide_record_with_peptide(records, peptide):
+    for record in records:
+        if record.peptide == peptide:
+            return record
+
+    return None
