@@ -2,7 +2,8 @@ class PeptideMatch:
     def __init__(self, analysis_name='', score=0.0, reverse_score=0.0,
                  percent_of_scored_peak_intensity=0.0, total_intensity=0.0,
                  precursor_averagine_chi_squared=0.0, retention_time_min=0.0,
-                 chromatographic_peak_width_in_seconds=0.0):
+                 chromatographic_peak_width_in_seconds=0.0, position_in_sequence=None,
+                 position_in_structure=None):
         self.analysis_name = analysis_name
         self.score = score
         self.reverse_score = reverse_score
@@ -11,6 +12,8 @@ class PeptideMatch:
         self.precursor_averagine_chi_squared = precursor_averagine_chi_squared
         self.retention_time_min = retention_time_min
         self.chromatographic_peak_width_in_seconds = chromatographic_peak_width_in_seconds
+        self.position_in_sequence = position_in_sequence
+        self.position_in_structure = position_in_structure
 
     def __str__(self):
         return '(analysis_name: \'' + self.analysis_name + '\', score: ' + str(self.score) + \
@@ -19,7 +22,9 @@ class PeptideMatch:
                ', total_intensity: ' + str(self.total_intensity) + \
                ', precursor_averagine_chi_squared: ' + str(self.precursor_averagine_chi_squared) + \
                ', retention_time_min: ' + str(self.retention_time_min) + \
-               ', chromatographic_peak_width_in_seconds: ' + str(self.chromatographic_peak_width_in_seconds) + ')'
+               ', chromatographic_peak_width_in_seconds: ' + str(self.chromatographic_peak_width_in_seconds) + \
+               ', position_in_sequence: ' + str(self.position_in_sequence) + \
+               ', position_in_structure: ' + str(self.position_in_structure) + ')'
 
     def __repr__(self):
         return PeptideMatch.__str__(self)
