@@ -26,3 +26,39 @@ def cut_received_peptide_sequences(protein_sequence, peptide_sequences):
     missed_peptide_sequences = modified_protein_sequence.split('-')
     missed_peptide_sequences = [fragment for fragment in missed_peptide_sequences if fragment != '']
     return missed_peptide_sequences
+
+
+def trypsinolize_sequence(sequence):  # TODO: optimize cycle
+    fragments = []
+    previous_r_or_k_position = 0
+    last_r_position = sequence.find('R')
+    last_k_position = sequence.find('K')
+    if last_r_position == -1:
+        if last_k_position == -1:
+            return [sequence]
+        else:
+            last_r_or_k_position = last_k_position
+    else:
+        if last_k_position == -1:
+            last_r_or_k_position = last_r_position
+        else:
+            last_r_or_k_position = min(last_r_position, last_k_position)
+
+    while last_r_or_k_position != -1:
+        fragments.append(sequence[previous_r_or_k_position:last_r_or_k_position+1])
+        previous_r_or_k_position = last_r_or_k_position+1
+
+        last_r_position = sequence.find('R', last_r_or_k_position+1)
+        last_k_position = sequence.find('K', last_r_or_k_position+1)
+        if last_r_position == -1:
+            if last_k_position == -1:
+                return fragments
+            else:
+                last_r_or_k_position = last_k_position
+        else:
+            if last_k_position == -1:
+                last_r_or_k_position = last_r_position
+            else:
+                last_r_or_k_position = min(last_r_position, last_k_position)
+
+    return fragments
