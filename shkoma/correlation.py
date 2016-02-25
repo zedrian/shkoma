@@ -54,6 +54,15 @@ def save_proteins_to_csv(proteins, file_name):
                        str(protein.M) + ';' + str(protein.Z) + ';' + str(protein.sequence) + '\n')
 
 
+# load list of proteins from file
+def load_proteins_from_csv(file_name):
+    data = genfromtxt(file_name, dtype=None, delimiter=';', names=True)
+    proteins = []
+    for line in data:
+        proteins.append(Protein(id=b2str(line['id']), name=b2str(line['name']), mw=line['mw'], pI=line['pI'], M=line['M'], Z=line['Z'], sequence=b2str(line['sequence'])))
+    return proteins
+
+
 # construct list of protein records using list of proteins and main data
 def construct_protein_records(proteins, main_data):
     protein_records = []
