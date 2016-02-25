@@ -105,4 +105,8 @@ def construct_protein_records(proteins, main_data):
             protein_record = ProteinRecord(protein, received_peptide_records=[current_peptide_record])
             protein_records.append(protein_record)
 
+    # 2. sort peptide records by length (starting from longest)
+    for protein_record in protein_records:
+        protein_record.received_peptide_records = sorted(protein_record.received_peptide_records, key=lambda peptide_record: len(peptide_record.peptide.sequence), reverse=True)
+
     return protein_records
