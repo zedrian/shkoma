@@ -64,7 +64,7 @@ def load_proteins_from_csv(file_name):
     return proteins
 
 
-# construct list of protein records using list of proteins and main data
+# construct list of protein records and fill received peptide records using list of proteins and main data
 def construct_protein_records(proteins, main_data):
     protein_records = []
 
@@ -128,3 +128,49 @@ def fill_missed_peptide_records(protein_records):
         for missed_sequences_list in missed_sequences:
             for fragment in missed_sequences_list:
                 protein_record.missed_peptide_records.append(PeptideRecord(peptide=Peptide(sequence=fragment)))
+
+
+# save list of protein records to folder (one file for each protein record)
+def save_protein_records_to_folder(protein_records, folder):
+    # TODO: add possibility to show progress
+    protein_index = 1
+    for protein_record in protein_records:
+        with open(folder + protein_record.protein.id + '.txt', 'w') as file:
+            file.write('Protein:\n')
+            file.write('    id: ' + protein_record.protein.id + '\n')
+            file.write('    name: ' + protein_record.protein.name + '\n')
+            file.write('    mw: ' + str(protein_record.protein.mw) + '\n')
+            file.write('    pI: ' + str(protein_record.protein.pI) + '\n')
+            file.write('    sequence: ' + protein_record.protein.sequence + '\n')
+            file.write('\n')
+
+            file.write('Received peptides (' + str(len(protein_record.received_peptide_records)) + '):\n')
+            peptide_index = 1
+            for peptide_record in protein_record.received_peptide_records:
+                file.write('Peptide #' + str(peptide_index) + ':\n')
+                file.write('    sequence: ' + peptide_record.peptide.sequence + '\n')
+                file.write('    pI: ' + str(peptide_record.peptide.pI) + '\n')
+
+                file.write('    Matches (' + str(len(peptide_record.matches)) + '):\n')
+                match_index = 1
+                for match in peptide_record.matches:
+                    file.write('    Match #' + str(match_index) + ':\n')
+                    file.write('        analysis name: ' + match.analysis_name + '\n')
+                    file.write('        score: ' + str(match.score) + '\n')
+                    file.write('        reverse score: ' + str(match.reverse_score) + '\n')
+                    file.write('        percent of scored peak intensity: ' + str(match.percent_of_scored_peak_intensity) + '\n')
+                    file.write('        total intensity: ' + str(match.total_intensity) + '\n')
+                    file.write('        precursor averagine chi squared: ' + str(match.precursor_averagine_chi_squared) + '\n')
+                    file.write('        retention time min: ' + str(match.retention_time_min) + '\n')
+                    file.write('        chromatographic peak width in seconds: ' + str(match.chromatographic_peak_width_in_seconds) + '\n')
+                    match_index += 1
+                peptide_index += 1
+            file.write('\n')
+
+            file.write('Missed peptides (' + str(len(protein_record.missed_peptide_records)) + '):\n')
+            peptide_index = 1
+            for peptide_record in protein_record.missed_peptide_records:
+                file.write('Peptide #' + str(peptide_index) + ':\n')
+                file.write('    sequence: ' + peptide_record.peptide.sequence + '\n')
+                peptide_index += 1
+        protein_index += 1
