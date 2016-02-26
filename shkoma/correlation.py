@@ -1,6 +1,7 @@
 import uniprot
 from numpy import genfromtxt
 
+from shkoma.alignment import cut_received_peptide_sequences, trypsinolize_sequence
 from shkoma.peptide import Peptide
 from shkoma.peptide_match import PeptideMatch
 from shkoma.peptide_record import PeptideRecord, find_peptide_record_with_peptide
@@ -110,3 +111,20 @@ def construct_protein_records(proteins, main_data):
         protein_record.received_peptide_records = sorted(protein_record.received_peptide_records, key=lambda peptide_record: len(peptide_record.peptide.sequence), reverse=True)
 
     return protein_records
+
+
+# fill lists of missed peptide records for each protein record
+def fill_missed_peptide_records(protein_records):
+    for protein_record in protein_records:
+        # 1. construct list of sequences of received peptides
+        received_sequences = [peptide_record.peptide.sequence for peptide_record in protein_record.received_peptide_records]
+
+        # 2. calculate list of missed sequence fragments
+        missed_sequences = cut_received_peptide_sequences(protein_record.protein.sequence, received_sequences)
+        missed_sequences = [trypsinolize_sequence(x) for x in missed_sequences]
+
+        # 3. construct peptide record for each fragment and store them in missed peptide records
+        protein_record.missed_peptide_records = []
+        for missed_sequences_list in missed_sequences:
+            for fragment in missed_sequences_list:
+                protein_record.missed_peptide_records.append(PeptideRecord(peptide=Peptide(sequence=fragment)))
