@@ -6,7 +6,7 @@ class ProteinParameters:
         self.sequence_length = len(sequence)
         analysis = ProteinAnalysis(sequence)
 
-        self.amino_acids_percents = analysis.get_amino_acids_percent()
+        self.amino_acid_percents = analysis.get_amino_acids_percent()
         self.amino_acids_composition = calculate_amino_acids_composition(sequence)
         self.aromaticity = analysis.aromaticity()
         self.instability = analysis.instability_index()
@@ -22,57 +22,19 @@ class ProteinParameters:
 
     def __str__(self):
         return '  Sequence length: ' + str(self.sequence_length) + '\n' + \
-               '  Amino acids percents:\n' \
-               '    ACID\t\tPERCENT\n' + \
-               '    A\t\t\t' + str(self.amino_acids_percents['A'] * 100.0) + '\n' + \
-               '    G\t\t\t' + str(self.amino_acids_percents['G'] * 100.0) + '\n' + \
-               '    V\t\t\t' + str(self.amino_acids_percents['V'] * 100.0) + '\n' + \
-               '    M\t\t\t' + str(self.amino_acids_percents['M'] * 100.0) + '\n' + \
-               '    D\t\t\t' + str(self.amino_acids_percents['D'] * 100.0) + '\n' + \
-               '    Y\t\t\t' + str(self.amino_acids_percents['Y'] * 100.0) + '\n' + \
-               '    N\t\t\t' + str(self.amino_acids_percents['N'] * 100.0) + '\n' + \
-               '    S\t\t\t' + str(self.amino_acids_percents['S'] * 100.0) + '\n' + \
-               '    W\t\t\t' + str(self.amino_acids_percents['W'] * 100.0) + '\n' + \
-               '    L\t\t\t' + str(self.amino_acids_percents['L'] * 100.0) + '\n' + \
-               '    F\t\t\t' + str(self.amino_acids_percents['F'] * 100.0) + '\n' + \
-               '    I\t\t\t' + str(self.amino_acids_percents['I'] * 100.0) + '\n' + \
-               '    K\t\t\t' + str(self.amino_acids_percents['K'] * 100.0) + '\n' + \
-               '    P\t\t\t' + str(self.amino_acids_percents['P'] * 100.0) + '\n' + \
-               '    Q\t\t\t' + str(self.amino_acids_percents['Q'] * 100.0) + '\n' + \
-               '    C\t\t\t' + str(self.amino_acids_percents['C'] * 100.0) + '\n' + \
-               '    E\t\t\t' + str(self.amino_acids_percents['E'] * 100.0) + '\n' + \
-               '    R\t\t\t' + str(self.amino_acids_percents['R'] * 100.0) + '\n' + \
-               '    T\t\t\t' + str(self.amino_acids_percents['T'] * 100.0) + '\n' + \
-               '    H\t\t\t' + str(self.amino_acids_percents['H'] * 100.0) + '\n' + \
-               '  Amino acids composition:\n' + \
-               '    GROUP\t\tNUMBER\t\tPERCENT\n' + \
-               '    Small\t\t' + str(self.amino_acids_composition['Small']) + '\t\t\t' + str(
-            self.amino_acids_composition['Small'] / self.sequence_length * 100.0) + '\n' + \
-               '    Aliphatic\t' + str(self.amino_acids_composition['Aliphatic']) + '\t\t\t' + str(
-            self.amino_acids_composition['Aliphatic'] / self.sequence_length * 100.0) + '\n' + \
-               '    Aromatic\t' + str(self.amino_acids_composition['Aromatic']) + '\t\t\t' + str(
-            self.amino_acids_composition['Aromatic'] / self.sequence_length * 100.0) + '\n' + \
-               '    Non-polar\t' + str(self.amino_acids_composition['Non-polar']) + '\t\t\t' + str(
-            self.amino_acids_composition['Non-polar'] / self.sequence_length * 100.0) + '\n' + \
-               '    Polar\t\t' + str(self.amino_acids_composition['Polar']) + '\t\t\t' + str(
-            self.amino_acids_composition['Polar'] / self.sequence_length * 100.0) + '\n' + \
-               '    Charged\t\t' + str(self.amino_acids_composition['Charged']) + '\t\t\t' + str(
-            self.amino_acids_composition['Charged'] / self.sequence_length * 100.0) + '\n' + \
-               '    Basic\t\t' + str(self.amino_acids_composition['Basic']) + '\t\t\t' + str(
-            self.amino_acids_composition['Basic'] / self.sequence_length * 100.0) + '\n' + \
-               '    Acidic\t\t' + str(self.amino_acids_composition['Acidic']) + '\t\t\t' + str(
-            self.amino_acids_composition['Acidic'] / self.sequence_length * 100.0) + '\n' + \
-               '  Aromaticity: ' + str(self.aromaticity) + '\n' + \
-               '  Instability: ' + str(self.instability) + '\n' + \
+               amino_acids_percents_to_string(self.amino_acid_percents, '  ') + \
+               amino_acids_composition_to_string(self.amino_acids_composition, '  ', self.sequence_length) + \
+               '  Aromaticity: {0:.3f}\n'.format(self.aromaticity) + \
+               '  Instability: {0:.3f}\n'.format(self.instability) + \
                '  Flexibility: ' + str(self.flexibility) + '\n' + \
                '  Weight list: ' + str(self.weight_list) + '\n' + \
                '  Protein scale: ' + str(self.protein_scale) + '\n' + \
-               '  Isoelectric point: ' + str(self.isoelectric_point) + '\n' + \
+               '  Isoelectric point: {0:.3f}\n'.format(self.isoelectric_point) + \
                '  Secondary structure fraction: ' + str(self.secondary_structure_fraction) + '\n' + \
-               '  Molecular weight: ' + str(self.molecular_weight) + '\n' + \
-               '  Kyte plot: ' + str(self.kyte_plot) + '\n' + \
-               '  M: ' + str(self.M) + '\n' + \
-               '  Z: ' + str(self.Z) + '\n'
+               '  Molecular weight: {0:.3f}\n'.format(self.molecular_weight) + \
+               '  Kyte plot: {0:.3f}\n'.format(self.kyte_plot) + \
+               '  M: {0:.3f}\n'.format(self.M) + \
+               '  Z: {0:.3f}\n'.format(self.Z)
 
     def __repr__(self):
         return 'Protein computational parameters:\n' + ProteinParameters.__str__(self)
@@ -81,7 +43,7 @@ class ProteinParameters:
         if not isinstance(other, self.__class__):
             return False
         return self.sequence_length == other.sequence_length and \
-               self.amino_acids_percents == other.amino_acids_percents and \
+               self.amino_acid_percents == other.amino_acid_percents and \
                self.amino_acids_composition == other.amino_acids_composition and \
                self.aromaticity == other.aromaticity and \
                self.instability == other.instability and \
@@ -115,3 +77,25 @@ def calculate_amino_acids_composition(sequence):
     composition['Basic'] = count_acids_from_list(sequence, ['H', 'K', 'R'])
     composition['Acidic'] = count_acids_from_list(sequence, ['B', 'D', 'E', 'Z'])
     return composition
+
+
+def amino_acids_percents_to_string(percents, prefix):
+    result = prefix + 'Amino acid percents:\n' + \
+             prefix + '  {0:<7}{1:>10}\n'.format('ACID', 'PERCENT')
+
+    acids = 'AGVMDYNSWLFIKPQCERTH'
+    for acid in acids:
+        result += prefix + '  {0:<7}{1:>10.3%}\n'.format(acid, percents[acid])
+
+    return result
+
+
+def amino_acids_composition_to_string(composition, prefix, sequence_length):
+    result = prefix + 'Amino acids composition:\n' + \
+             prefix + '  {0:<10}{1:>10}{2:>12}\n'.format('GROUP', 'NUMBER', 'PERCENT')
+
+    groups = ['Small', 'Aliphatic', 'Aromatic', 'Non-polar', 'Polar', 'Charged', 'Basic', 'Acidic']
+    for group in groups:
+        result += prefix + '  {0:<10}{1:>10}{2:>12.3%}\n'.format(group, composition[group], composition[group]/sequence_length)
+
+    return result
