@@ -7,6 +7,7 @@ from shkoma.peptide_match import PeptideMatch
 from shkoma.peptide_record import PeptideRecord, find_peptide_record_with_peptide
 from shkoma.protein import Protein, find_protein_with_id
 from shkoma.protein_record import ProteinRecord, find_protein_record_with_protein
+from shkoma.protein_parameters import ProteinParameters
 from shkoma.utility import b2str
 
 
@@ -111,6 +112,12 @@ def construct_protein_records(proteins, main_data):
         protein_record.received_peptide_records = sorted(protein_record.received_peptide_records, key=lambda peptide_record: len(peptide_record.peptide.sequence), reverse=True)
 
     return protein_records
+
+
+# fill computational protein parameters for each protein record
+def fill_protein_parameters(protein_records):
+    for protein_record in protein_records:
+        protein_record.protein_parameters = ProteinParameters(protein_record.protein.sequence)
 
 
 # fill lists of missed peptide records for each protein record

@@ -14,6 +14,6 @@ setup(
     description='Protein data analysis',
     long_description=description,
     license='MIT',
-    install_requires=['uniprot', 'numpy'],
+    install_requires=['uniprot', 'numpy', 'biopython'],
     packages=['shkoma']
 )

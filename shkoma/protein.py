@@ -5,13 +5,12 @@ class Protein:
         self.sequence = sequence
 
     def __str__(self):
-        return 'Protein general information:\n' + \
-               '  ID: ' + self.id + '\n' + \
+        return '  ID: ' + self.id + '\n' + \
                '  Name: ' + self.name + '\n' + \
                '  Sequence: ' + self.sequence + '\n'
 
     def __repr__(self):
-        return Protein.__str__(self)
+        return 'Protein general information:\n' + Protein.__str__(self)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
