@@ -2,13 +2,13 @@ from shkoma.protein import Protein
 
 
 class ProteinRecord:
-    def __init__(self, protein=Protein, received_peptide_records=[], missed_peptide_records=[]):
+    def __init__(self, protein, received_peptide_records=[], missed_peptide_records=[]):
         self.protein = protein
         self.received_peptide_records = received_peptide_records
         self.missed_peptide_records = missed_peptide_records
 
     def __str__(self):
-        return 'protein: ' + str(self.protein) + \
+        return 'Protein record: ' + str(self.protein) + \
                ', received_peptide_records: ' + str(self.received_peptide_records) + \
                ', missed_peptide_records: ' + str(self.missed_peptide_records)
 

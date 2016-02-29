@@ -23,8 +23,7 @@ def construct_proteins(main_data):
     # 1. fill list with unique proteins
     for line in main_data:
         # 1.1. construct protein from current line
-        current_protein = Protein(id=b2str(line['accession_number']), name=b2str(line['entry_name']),
-                                  mw=line['protein_mw'], pI=line['protein_pI'])
+        current_protein = Protein(id=b2str(line['accession_number']), name=b2str(line['entry_name']))
 
         # 1.2. add if not already exists in list
         if current_protein not in proteins:
@@ -45,14 +44,15 @@ def fill_protein_sequences(proteins):
         # 2. store sequence in protein
         proteins[i].sequence = server_response[proteins[i].id]['sequence']
 
+        print("Done.")
+
 
 # save list of proteins to file
 def save_proteins_to_csv(proteins, file_name):
     with open(file_name, 'w') as file:
-        file.write('id;name;mw;pI;M;Z;sequence\n')
+        file.write('id;name;sequence\n')
         for protein in proteins:
-            file.write(protein.id + ';' + protein.name + ';' + str(protein.mw) + ';' + str(protein.pI) + ';' +
-                       str(protein.M) + ';' + str(protein.Z) + ';' + str(protein.sequence) + '\n')
+            file.write(protein.id + ';' + protein.name + ';' + protein.sequence + '\n')
 
 
 # load list of proteins from file
@@ -60,7 +60,7 @@ def load_proteins_from_csv(file_name):
     data = genfromtxt(file_name, dtype=None, delimiter=';', names=True)
     proteins = []
     for line in data:
-        proteins.append(Protein(id=b2str(line['id']), name=b2str(line['name']), mw=line['mw'], pI=line['pI'], M=line['M'], Z=line['Z'], sequence=b2str(line['sequence'])))
+        proteins.append(Protein(id=b2str(line['id']), name=b2str(line['name']), sequence=b2str(line['sequence'])))
     return proteins
 
 
