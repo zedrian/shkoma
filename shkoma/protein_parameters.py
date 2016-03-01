@@ -19,6 +19,7 @@ class ProteinParameters:
         self.kyte_plot = analysis.gravy()
         self.M = 0
         self.Z = 0
+        self.pefing = calculate_pefing(sequence)
 
     def __str__(self):
         return '  Sequence length: ' + str(self.sequence_length) + '\n' + \
@@ -34,7 +35,8 @@ class ProteinParameters:
                '  Molecular weight: {0:.3f}\n'.format(self.molecular_weight) + \
                '  Kyte plot: {0:.3f}\n'.format(self.kyte_plot) + \
                '  M: {0:.3f}\n'.format(self.M) + \
-               '  Z: {0:.3f}\n'.format(self.Z)
+               '  Z: {0:.3f}\n'.format(self.Z) + \
+               pefing_to_string(self.pefing, '  ')
 
     def __repr__(self):
         return 'Protein computational parameters:\n' + ProteinParameters.__str__(self)
@@ -55,7 +57,8 @@ class ProteinParameters:
                self.molecular_weight == other.molecular_weight and \
                self.kyte_plot == other.kyte_plot and \
                self.M == other.M and \
-               self.Z == other.Z
+               self.Z == other.Z and \
+               self.pefing == other.pefing
 
 
 def count_acids_from_list(sequence, list):
@@ -96,6 +99,50 @@ def amino_acids_composition_to_string(composition, prefix, sequence_length):
 
     groups = ['Small', 'Aliphatic', 'Aromatic', 'Non-polar', 'Polar', 'Charged', 'Basic', 'Acidic']
     for group in groups:
-        result += prefix + '  {0:<10}{1:>10}{2:>12.3%}\n'.format(group, composition[group], composition[group]/sequence_length)
+        result += prefix + '  {0:<10}{1:>10}{2:>12.3%}\n'.format(group, composition[group],
+                                                                 composition[group] / sequence_length)
+
+    return result
+
+
+# calculate peptide fingerprint
+def calculate_pefing(sequence):
+    pefing = {}
+
+    acids = 'AGVMDYNSWLFIKPQCERTH'
+
+    for first_acid in acids:
+        line = {}
+        first_acid_number = 0
+        for second_acid in acids:
+            line[second_acid] = 0
+        for i in range(1, len(sequence)):
+            if sequence[i-1] == first_acid:
+                line[sequence[i]] += 1
+                first_acid_number += 1
+
+        if not first_acid_number == 0:
+            for second_acid in acids:
+                line[second_acid] /= first_acid_number
+        pefing[first_acid] = line
+
+    return pefing
+
+
+def pefing_to_string(pefing, prefix):
+    result = prefix + 'Peptide fingerprint:\n' + \
+             prefix + '  {0:<5}'.format(' ')
+
+    acids = 'AGVMDYNSWLFIKPQCERTH'
+
+    for acid in acids:
+        result += '{0:>10}'.format(acid)
+    result += '\n'
+
+    for first_acid in acids:
+        result += prefix + '  {0:<5}'.format(first_acid)
+        for second_acid in acids:
+            result += '{0:>10.3%}'.format(pefing[first_acid][second_acid])
+        result += '\n'
 
     return result
