@@ -131,18 +131,21 @@ def calculate_pefing(sequence):
 
 def pefing_to_string(pefing, prefix):
     result = prefix + 'Peptide fingerprint:\n' + \
-             prefix + '  {0:<5}'.format(' ')
+             prefix + '  {0:<2}'.format(' ')
 
     acids = 'AGVMDYNSWLFIKPQCERTH'
 
     for acid in acids:
-        result += '{0:>10}'.format(acid)
+        result += '{0:^10}'.format(acid)
     result += '\n'
 
     for first_acid in acids:
-        result += prefix + '  {0:<5}'.format(first_acid)
+        result += prefix + '  {0:<2}'.format(first_acid)
         for second_acid in acids:
-            result += '{0:>10.3%}'.format(pefing[first_acid][second_acid])
+            if pefing[first_acid][second_acid] > 0:
+                result += '{0:>10.3%}'.format(pefing[first_acid][second_acid])
+            else:
+                result += '{0:>10}'.format('.')
         result += '\n'
 
     return result
