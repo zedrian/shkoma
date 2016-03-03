@@ -1,4 +1,5 @@
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
+from rpy2.robjects import r
 
 
 class ProteinParameters:
@@ -21,6 +22,11 @@ class ProteinParameters:
         self.Z = 0
         self.pefing = calculate_pefing(sequence)
 
+        # next parameters are calculated using R.Peptides
+        r('library(Peptides)')
+        r('sequence = "{0}"'.format(sequence))
+        self.aliphatic_index = r('aindex(sequence)')[0]
+
     def __str__(self):
         return '  Sequence length: ' + str(self.sequence_length) + '\n' + \
                amino_acids_percents_to_string(self.amino_acid_percents, '  ') + \
@@ -36,7 +42,8 @@ class ProteinParameters:
                '  Kyte plot: {0:.3f}\n'.format(self.kyte_plot) + \
                '  M: {0:.3f}\n'.format(self.M) + \
                '  Z: {0:.3f}\n'.format(self.Z) + \
-               pefing_to_string(self.pefing, '  ')
+               pefing_to_string(self.pefing, '  ') + \
+               '  Aliphatic_index: {0:.3f}\n'.format(self.aliphatic_index)
 
     def __repr__(self):
         return 'Protein computational parameters:\n' + ProteinParameters.__str__(self)
@@ -58,7 +65,8 @@ class ProteinParameters:
                self.kyte_plot == other.kyte_plot and \
                self.M == other.M and \
                self.Z == other.Z and \
-               self.pefing == other.pefing
+               self.pefing == other.pefing and \
+               self.aliphatic_index == other.aliphatic_index
 
 
 def count_acids_from_list(sequence, list):
@@ -117,7 +125,7 @@ def calculate_pefing(sequence):
         for second_acid in acids:
             line[second_acid] = 0
         for i in range(1, len(sequence)):
-            if sequence[i-1] == first_acid:
+            if sequence[i - 1] == first_acid:
                 line[sequence[i]] += 1
                 first_acid_number += 1
 

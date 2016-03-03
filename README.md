@@ -1,8 +1,13 @@
-# shkoma
+shkoma
+======
 Protein data analysis.
 
 
-Usage example:
+## Requirements
+* Python 3 with installed `numpy`, `biopython` and `rpy2` packages
+* R with installed `Peptides` package
+
+## Usage example:
 
 ```python
 from shkoma import correlation
