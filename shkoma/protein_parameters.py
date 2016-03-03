@@ -26,6 +26,7 @@ class ProteinParameters:
         r('library(Peptides)')
         r('sequence = "{0}"'.format(sequence))
         self.aliphatic_index = r('aindex(sequence)')[0]
+        self.boman_index = r('boman(sequence)')[0]
 
     def __str__(self):
         return '  Sequence length: ' + str(self.sequence_length) + '\n' + \
@@ -43,7 +44,8 @@ class ProteinParameters:
                '  M: {0:.3f}\n'.format(self.M) + \
                '  Z: {0:.3f}\n'.format(self.Z) + \
                pefing_to_string(self.pefing, '  ') + \
-               '  Aliphatic_index: {0:.3f}\n'.format(self.aliphatic_index)
+               '  Aliphatic_index: {0:.3f}\n'.format(self.aliphatic_index) + \
+               '  Boman index: {0:.3f}\n'.format(self.boman_index)
 
     def __repr__(self):
         return 'Protein computational parameters:\n' + ProteinParameters.__str__(self)
@@ -66,7 +68,8 @@ class ProteinParameters:
                self.M == other.M and \
                self.Z == other.Z and \
                self.pefing == other.pefing and \
-               self.aliphatic_index == other.aliphatic_index
+               self.aliphatic_index == other.aliphatic_index and \
+               self.boman_index == other.boman_index
 
 
 def count_acids_from_list(sequence, list):
