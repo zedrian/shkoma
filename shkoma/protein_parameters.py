@@ -1,5 +1,6 @@
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
 from rpy2.robjects import r
+from numpy import arange
 
 
 class ProteinParameters:
@@ -27,6 +28,7 @@ class ProteinParameters:
         r('sequence = "{0}"'.format(sequence))
         self.aliphatic_index = r('aindex(sequence)')[0]
         self.boman_index = r('boman(sequence)')[0]
+        self.charges = calculate_charges(sequence, 1.0, 14.0, 0.5, 'Lehninger')
 
     def __str__(self):
         return '  Sequence length: ' + str(self.sequence_length) + '\n' + \
@@ -45,7 +47,8 @@ class ProteinParameters:
                '  Z: {0:.3f}\n'.format(self.Z) + \
                pefing_to_string(self.pefing, '  ') + \
                '  Aliphatic_index: {0:.3f}\n'.format(self.aliphatic_index) + \
-               '  Boman index: {0:.3f}\n'.format(self.boman_index)
+               '  Boman index: {0:.3f}\n'.format(self.boman_index) + \
+               charges_to_string(self.charges, '  ')
 
     def __repr__(self):
         return 'Protein computational parameters:\n' + ProteinParameters.__str__(self)
@@ -69,7 +72,8 @@ class ProteinParameters:
                self.Z == other.Z and \
                self.pefing == other.pefing and \
                self.aliphatic_index == other.aliphatic_index and \
-               self.boman_index == other.boman_index
+               self.boman_index == other.boman_index and \
+               self.charges == other.charges
 
 
 def count_acids_from_list(sequence, list):
@@ -158,5 +162,29 @@ def pefing_to_string(pefing, prefix):
             else:
                 result += '{0:>10}'.format('.')
         result += '\n'
+
+    return result
+
+
+def calculate_charges(sequence, ph_min, ph_max, ph_step, method):
+    r('library(Peptides)')
+    r('sequence = "{0}"'.format(sequence))
+
+    charges = []
+    for ph in arange(ph_min, ph_max + ph_step, ph_step):
+        charge = {}
+        charge['pH'] = ph
+        charge['charge'] = r('charge(sequence, {0}, "{1}")'.format(ph, method))[0]
+        charges.append(charge)
+
+    return charges
+
+
+def charges_to_string(charges, prefix):
+    result = prefix + 'Charges for different pH:\n' + \
+             prefix + '  {0:>4}{1:>10}\n'.format('pH', 'CHARGE')
+
+    for charge in charges:
+        result += prefix + '  {0:>4.1f}{1:>10.3f}\n'.format(charge['pH'], charge['charge'])
 
     return result
