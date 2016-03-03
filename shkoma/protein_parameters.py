@@ -24,7 +24,7 @@ class ProteinParameters:
         self.pefing = calculate_pefing(sequence)
 
         # next parameters are calculated using R.Peptides
-        r('library(Peptides)')
+        r('require(Peptides)')
         r('sequence = "{0}"'.format(sequence))
         self.aliphatic_index = r('aindex(sequence)')[0]
         self.boman_index = r('boman(sequence)')[0]
@@ -170,7 +170,7 @@ def pefing_to_string(pefing, prefix):
 
 
 def calculate_charges(sequence, ph_min, ph_max, ph_step, method):
-    r('library(Peptides)')
+    r('require(Peptides)')
     r('sequence = "{0}"'.format(sequence))
 
     charges = []
