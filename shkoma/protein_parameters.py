@@ -29,6 +29,7 @@ class ProteinParameters:
         self.aliphatic_index = r('aindex(sequence)')[0]
         self.boman_index = r('boman(sequence)')[0]
         self.charges = calculate_charges(sequence, 1.0, 14.0, 0.5, 'Lehninger')
+        self.hydrophobicity = r('seq(sequence)')[0]
 
     def __str__(self):
         return '  Sequence length: ' + str(self.sequence_length) + '\n' + \
@@ -48,7 +49,8 @@ class ProteinParameters:
                pefing_to_string(self.pefing, '  ') + \
                '  Aliphatic_index: {0:.3f}\n'.format(self.aliphatic_index) + \
                '  Boman index: {0:.3f}\n'.format(self.boman_index) + \
-               charges_to_string(self.charges, '  ')
+               charges_to_string(self.charges, '  ') + \
+               '  Hydrophobicity: {0:.3f}\n'.format(self.hydrophobicity)
 
     def __repr__(self):
         return 'Protein computational parameters:\n' + ProteinParameters.__str__(self)
@@ -73,7 +75,8 @@ class ProteinParameters:
                self.pefing == other.pefing and \
                self.aliphatic_index == other.aliphatic_index and \
                self.boman_index == other.boman_index and \
-               self.charges == other.charges
+               self.charges == other.charges and \
+               self.hydrophobicity == other.hydrophobicity
 
 
 def count_acids_from_list(sequence, list):
