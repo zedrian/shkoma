@@ -30,6 +30,7 @@ class ProteinParameters:
         self.boman_index = r('boman(sequence)')[0]
         self.charges = calculate_charges(sequence, 1.0, 14.0, 0.5, 'Lehninger')
         self.hydrophobicity = r('seq(sequence)')[0]
+        self.hydrophobic_moments = calculate_hydrophobic_moments(sequence, [100.0, 160.0])
 
     def __str__(self):
         return '  Sequence length: ' + str(self.sequence_length) + '\n' + \
@@ -50,7 +51,8 @@ class ProteinParameters:
                '  Aliphatic_index: {0:.3f}\n'.format(self.aliphatic_index) + \
                '  Boman index: {0:.3f}\n'.format(self.boman_index) + \
                charges_to_string(self.charges, '  ') + \
-               '  Hydrophobicity: {0:.3f}\n'.format(self.hydrophobicity)
+               '  Hydrophobicity: {0:.3f}\n'.format(self.hydrophobicity) + \
+               hydrophobic_moments_to_string(self.hydrophobic_moments, '  ')
 
     def __repr__(self):
         return 'Protein computational parameters:\n' + ProteinParameters.__str__(self)
@@ -76,7 +78,8 @@ class ProteinParameters:
                self.aliphatic_index == other.aliphatic_index and \
                self.boman_index == other.boman_index and \
                self.charges == other.charges and \
-               self.hydrophobicity == other.hydrophobicity
+               self.hydrophobicity == other.hydrophobicity and \
+               self.hydrophobic_moments == other.hydrophobic_moments
 
 
 def count_acids_from_list(sequence, list):
@@ -189,5 +192,29 @@ def charges_to_string(charges, prefix):
 
     for charge in charges:
         result += prefix + '  {0:>4.1f}{1:>10.3f}\n'.format(charge['pH'], charge['charge'])
+
+    return result
+
+
+def calculate_hydrophobic_moments(sequence, angles):
+    r('require(Peptides)')
+    r('sequence = "{0}"'.format(sequence))
+
+    moments = []
+    for angle in angles:
+        moment = {}
+        moment['angle'] = angle
+        moment['moment'] = r('hmoment(sequence, {0}, 11)'.format(angle))[0]
+        moments.append(moment)
+
+    return moments
+
+
+def hydrophobic_moments_to_string(moments, prefix):
+    result = prefix + 'Hydrophobic moments:\n' + \
+             prefix + '  {0:>5}{1:>10}\n'.format('ANGLE', 'MOMENT')
+
+    for moment in moments:
+        result += prefix + '  {0:>5.0f}{1:>10.3f}\n'.format(moment['angle'], moment['moment'])
 
     return result
