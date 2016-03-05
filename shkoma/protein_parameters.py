@@ -30,7 +30,8 @@ class ProteinParameters:
         self.boman_index = r('boman(sequence)')[0]
         self.charges = calculate_charges(sequence, 1.0, 14.0, 0.5, 'Lehninger')
         self.hydrophobicity = r('seq(sequence)')[0]
-        self.hydrophobic_moments = calculate_hydrophobic_moments(sequence, [100.0, 160.0])
+        self.hydrophobic_moments = calculate_hydrophobic_moments(sequence, [100, 160])
+        self.peptide_types = calculate_peptide_types(sequence, [0, 60, 120, 180, 240, 300])
 
     def __str__(self):
         return '  Sequence length: ' + str(self.sequence_length) + '\n' + \
@@ -52,7 +53,8 @@ class ProteinParameters:
                '  Boman index: {0:.3f}\n'.format(self.boman_index) + \
                charges_to_string(self.charges, '  ') + \
                '  Hydrophobicity: {0:.3f}\n'.format(self.hydrophobicity) + \
-               hydrophobic_moments_to_string(self.hydrophobic_moments, '  ')
+               hydrophobic_moments_to_string(self.hydrophobic_moments, '  ') + \
+               peptide_types_to_string(self.peptide_types, '  ')
 
     def __repr__(self):
         return 'Protein computational parameters:\n' + ProteinParameters.__str__(self)
@@ -79,7 +81,8 @@ class ProteinParameters:
                self.boman_index == other.boman_index and \
                self.charges == other.charges and \
                self.hydrophobicity == other.hydrophobicity and \
-               self.hydrophobic_moments == other.hydrophobic_moments
+               self.hydrophobic_moments == other.hydrophobic_moments and \
+               self.peptide_types == other.peptide_types
 
 
 def count_acids_from_list(sequence, list):
@@ -216,5 +219,40 @@ def hydrophobic_moments_to_string(moments, prefix):
 
     for moment in moments:
         result += prefix + '  {0:>5.0f}{1:>10.3f}\n'.format(moment['angle'], moment['moment'])
+
+    return result
+
+
+def calculate_peptide_types(sequence, angles):
+    r('require(Peptides)')
+    r('sequence = "{0}"'.format(sequence))
+
+    types = []
+    for angle in angles:
+        data = r('membpos(sequence, {0})'.format(angle))
+        current_types = {}
+        current_types['angle'] = angle
+        current_types['types'] = []
+        for i in range(0, len(data[0])):
+            line = {}
+            line['peptide'] = data[0][i]
+            line['H'] = data[1][i]
+            line['uH'] = data[2][i]
+            line['memb position'] = data[3][i]
+            current_types['types'].append(line)
+        types.append(current_types)
+
+    return types
+
+
+def peptide_types_to_string(types, prefix):
+    result = prefix + 'Peptide types, calculated for different angles:\n'
+
+    for current_types in types:
+        result += prefix + '  angle = {0}:\n'.format(current_types['angle']) + \
+                  prefix + '    {0:>15}{1:>10}{2:>10}{3:>15}\n'.format('PEPTIDE', 'H', 'uH', 'MEMB_POSITION')
+        for line in current_types['types']:
+            result += prefix + '    {0:>15}{1:>10.3f}{2:>10.3f}{3:>15}\n'.format(line['peptide'], line['H'], line['uH'],
+                                                                                 line['memb position'])
 
     return result
