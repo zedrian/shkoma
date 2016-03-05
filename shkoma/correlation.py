@@ -1,5 +1,6 @@
 import uniprot
 from numpy import genfromtxt
+from sys import stdout
 
 from shkoma.alignment import cut_received_peptide_sequences, trypsinolize_sequence
 from shkoma.peptide import Peptide
@@ -116,8 +117,13 @@ def construct_protein_records(proteins, main_data):
 
 # fill computational protein parameters for each protein record
 def fill_protein_parameters(protein_records):
+    index = 1
     for protein_record in protein_records:
+        print('Processing protein record #{0} of {1}.'.format(index, len(protein_records)))
+        stdout.flush()
         protein_record.protein_parameters = ProteinParameters(protein_record.protein.sequence)
+        index += 1
+    print('Done.')
 
 
 # fill lists of missed peptide records for each protein record
