@@ -39,6 +39,8 @@ class ProteinParameters:  # TODO: change to PeptideParameters
                   {'name': 'Omega', 'angle': 180},
                   {'name': 'Antiparallel beta-sheet', 'angle': 135},
                   {'name': 'Parallel beta-sheet', 'angle': 113}]
+        if self.amino_acid_percents['P'] + self.amino_acid_percents['G'] > 0.3:
+            angles.append({'name': 'Polygly-polypro helix', 'angle': 153})
         self.peptide_types = calculate_peptide_types(sequence, angles)
 
     def __str__(self):
