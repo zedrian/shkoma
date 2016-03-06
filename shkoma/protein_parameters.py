@@ -31,6 +31,7 @@ class ProteinParameters:
         self.charges = calculate_charges(sequence, 1.0, 14.0, 0.5, 'Lehninger')
         self.hydrophobicity = r('seq(sequence)')[0]
         self.hydrophobic_moments = calculate_hydrophobic_moments(sequence, [100, 160])
+        self.kidera_factors = calculate_kidera_factors(sequence)
         self.peptide_types = calculate_peptide_types(sequence, [0, 60, 120, 180, 240, 300])
 
     def __str__(self):
@@ -54,6 +55,7 @@ class ProteinParameters:
                charges_to_string(self.charges, '  ') + \
                '  Hydrophobicity: {0:.3f}\n'.format(self.hydrophobicity) + \
                hydrophobic_moments_to_string(self.hydrophobic_moments, '  ') + \
+               kidera_factors_to_string(self.kidera_factors, '  ') + \
                peptide_types_to_string(self.peptide_types, '  ')
 
     def __repr__(self):
@@ -82,6 +84,7 @@ class ProteinParameters:
                self.charges == other.charges and \
                self.hydrophobicity == other.hydrophobicity and \
                self.hydrophobic_moments == other.hydrophobic_moments and \
+               self.kidera_factors == other.kidera_factors and \
                self.peptide_types == other.peptide_types
 
 
@@ -219,6 +222,33 @@ def hydrophobic_moments_to_string(moments, prefix):
 
     for moment in moments:
         result += prefix + '  {0:>5.0f}{1:>10.3f}\n'.format(moment['angle'], moment['moment'])
+
+    return result
+
+
+def calculate_kidera_factors(sequence):
+    r('require(Peptides)')
+    r('sequence = "{0}"'.format(sequence))
+
+    names = ['helix.bend.pref', 'side.chain.size', 'extended.str.pref',
+             'hydrophobicity', 'double.bend.pref', 'partial.spec.vol',
+             'flat.ext.pref', 'occurrence.alpha.reg', 'pK.C', 'surrounding.hydrop']
+
+    factors = []
+    for name in names:
+        factor = {}
+        factor['name'] = name
+        factor['value'] = r('kidera(seq=sequence, factor="{0}")'.format(name))[0]
+        factors.append(factor)
+
+    return factors
+
+
+def kidera_factors_to_string(factors, prefix):
+    result = prefix + 'Kidera factors:\n'
+
+    for factor in factors:
+        result += prefix + '  {0}: {1:.3f}\n'.format(factor['name'], factor['value'])
 
     return result
 
