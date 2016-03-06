@@ -16,7 +16,7 @@ class ProteinParameters:  # TODO: change to PeptideParameters
         self.flexibility = analysis.flexibility()
         self.protein_scale = None  # analysis.protein_scale(?, 11, ?)
         self.isoelectric_point = analysis.isoelectric_point()
-        self.secondary_structure_fraction = analysis.secondary_structure_fraction()
+        self.secondary_structure_fraction = calculate_secondary_structure_fraction(analysis)
         self.molecular_weight = analysis.molecular_weight()
         self.kyte_plot = analysis.gravy()
         self.M = 0  # TODO: move to ProteinParameters
@@ -53,7 +53,7 @@ class ProteinParameters:  # TODO: change to PeptideParameters
                '  Flexibility: ' + str(self.flexibility) + '\n' + \
                '  Protein scale: ' + str(self.protein_scale) + '\n' + \
                '  Isoelectric point: {0:.3f}\n'.format(self.isoelectric_point) + \
-               '  Secondary structure fraction: ' + str(self.secondary_structure_fraction) + '\n' + \
+               secondary_structure_fraction_to_string(self.secondary_structure_fraction, '  ') + \
                '  Molecular weight: {0:.3f}\n'.format(self.molecular_weight) + \
                '  Kyte plot: {0:.3f}\n'.format(self.kyte_plot) + \
                '  M: {0:.3f}\n'.format(self.M) + \
@@ -95,6 +95,21 @@ def calculate_amino_acids_composition(sequence):
     composition['Basic'] = count_acids_from_list(sequence, ['H', 'K', 'R'])
     composition['Acidic'] = count_acids_from_list(sequence, ['B', 'D', 'E', 'Z'])
     return composition
+
+
+def calculate_secondary_structure_fraction(analysis):
+    fraction = analysis.secondary_structure_fraction()
+
+    return [{'name': 'Helix', 'value': fraction[0]},
+            {'name': 'Turn', 'value': fraction[1]},
+            {'name': 'Sheet', 'value': fraction[2]}]
+
+
+def secondary_structure_fraction_to_string(fraction, prefix):
+    result = prefix + 'Secondary structure fraction:\n'
+    for shape in fraction:
+        result += prefix + '  {0}: {1:.3f}\n'.format(shape['name'], shape['value'])
+    return result
 
 
 def amino_acids_percents_to_string(percents, prefix):
