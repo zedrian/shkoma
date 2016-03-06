@@ -30,10 +30,6 @@ class ProteinParameters:  # TODO: change to PeptideParameters
         self.boman_index = r('boman(sequence)')[0]
         self.charges = calculate_charges(sequence, 1.0, 14.0, 0.5, 'Lehninger')
         self.hydrophobicity = r('seq(sequence)')[0]
-        angles = [{'name': 'Helix', 'angle': 100},
-                  {'name': 'B-sheet', 'angle': 160}]
-        self.hydrophobic_moments = calculate_hydrophobic_moments(sequence, angles)
-        self.kidera_factors = calculate_kidera_factors(sequence)
         angles = [{'name': 'Alpha-helix', 'angle': -47},
                   {'name': '3-10-helix', 'angle': -26},
                   {'name': 'Pi-helix', 'angle': -80},
@@ -42,6 +38,8 @@ class ProteinParameters:  # TODO: change to PeptideParameters
                   {'name': 'Parallel beta-sheet', 'angle': 113}]
         if self.amino_acid_percents['P'] + self.amino_acid_percents['G'] > 0.3:
             angles.append({'name': 'Polygly-polypro helix', 'angle': 153})
+        self.hydrophobic_moments = calculate_hydrophobic_moments(sequence, angles)
+        self.kidera_factors = calculate_kidera_factors(sequence)
         self.peptide_types = calculate_peptide_types(sequence, angles)
 
     def __str__(self):
