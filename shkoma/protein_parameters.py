@@ -14,7 +14,6 @@ class ProteinParameters:  # TODO: change to PeptideParameters
         self.aromaticity = analysis.aromaticity()
         self.instability = analysis.instability_index()
         self.flexibility = analysis.flexibility()
-        self.weight_list = None  # analysis.weight_list(11, ?)  # TODO: remove
         self.protein_scale = None  # analysis.protein_scale(?, 11, ?)
         self.isoelectric_point = analysis.isoelectric_point()
         self.secondary_structure_fraction = analysis.secondary_structure_fraction()
@@ -50,7 +49,6 @@ class ProteinParameters:  # TODO: change to PeptideParameters
                '  Aromaticity: {0:.3f}\n'.format(self.aromaticity) + \
                '  Instability: {0:.3f}\n'.format(self.instability) + \
                '  Flexibility: ' + str(self.flexibility) + '\n' + \
-               '  Weight list: ' + str(self.weight_list) + '\n' + \
                '  Protein scale: ' + str(self.protein_scale) + '\n' + \
                '  Isoelectric point: {0:.3f}\n'.format(self.isoelectric_point) + \
                '  Secondary structure fraction: ' + str(self.secondary_structure_fraction) + '\n' + \
