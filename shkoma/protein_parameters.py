@@ -30,7 +30,9 @@ class ProteinParameters:  # TODO: change to PeptideParameters
         self.boman_index = r('boman(sequence)')[0]
         self.charges = calculate_charges(sequence, 1.0, 14.0, 0.5, 'Lehninger')
         self.hydrophobicity = r('seq(sequence)')[0]
-        self.hydrophobic_moments = calculate_hydrophobic_moments(sequence)
+        angles = [{'name': 'Helix', 'angle': 100},
+                  {'name': 'B-sheet', 'angle': 160}]
+        self.hydrophobic_moments = calculate_hydrophobic_moments(sequence, angles)
         self.kidera_factors = calculate_kidera_factors(sequence)
         angles = [{'name': 'Alpha-helix', 'angle': -47},
                   {'name': '3-10-helix', 'angle': -26},
@@ -188,26 +190,27 @@ def charges_to_string(charges, prefix):
     return result
 
 
-def calculate_hydrophobic_moments(sequence):
+def calculate_hydrophobic_moments(sequence, angles):
     r('require(Peptides)')
     r('sequence = "{0}"'.format(sequence))
 
-    moment100 = {}
-    moment100['shape'] = 'Helix'
-    moment100['moment'] = r('hmoment(sequence, 100, 11)')[0]
+    moments = []
 
-    moment160 = {}
-    moment160['shape'] = 'Beta-sheet'
-    moment160['moment'] = r('hmoment(sequence, 160, 11)')[0]
+    for angle in angles:
+        moment = {}
+        moment['name'] = angle['name']
+        moment['angle'] = angle['angle']
+        moment['moment'] = r('hmoment(sequence, {0}, 11)'.format(angle['angle']))[0]
+        moments.append(moment)
 
-    return [moment100, moment160]
+    return moments
 
 
 def hydrophobic_moments_to_string(moments, prefix):
     result = prefix + 'Hydrophobic moments:\n'
 
     for moment in moments:
-        result += prefix + '  {0}: {1:.3f}\n'.format(moment['shape'], moment['moment'])
+        result += prefix + '  {0} (angle = {1}): {2:.3f}\n'.format(moment['name'], moment['angle'], moment['moment'])
 
     return result
 
