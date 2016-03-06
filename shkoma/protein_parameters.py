@@ -3,8 +3,9 @@ from rpy2.robjects import r
 from numpy import arange
 
 
-class ProteinParameters:
+class ProteinParameters:  # TODO: change to PeptideParameters
     def __init__(self, sequence):
+        self.sequence = sequence
         self.sequence_length = len(sequence)
         analysis = ProteinAnalysis(sequence)
 
@@ -19,8 +20,8 @@ class ProteinParameters:
         self.secondary_structure_fraction = analysis.secondary_structure_fraction()
         self.molecular_weight = analysis.molecular_weight()
         self.kyte_plot = analysis.gravy()
-        self.M = 0
-        self.Z = 0
+        self.M = 0  # TODO: move to ProteinParameters
+        self.Z = 0  # TODO: move to ProteinParameters
         self.pefing = calculate_pefing(sequence)
 
         # next parameters are calculated using R.Peptides
@@ -64,28 +65,7 @@ class ProteinParameters:
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
-        return self.sequence_length == other.sequence_length and \
-               self.amino_acid_percents == other.amino_acid_percents and \
-               self.amino_acids_composition == other.amino_acids_composition and \
-               self.aromaticity == other.aromaticity and \
-               self.instability == other.instability and \
-               self.flexibility == other.flexibility and \
-               self.weight_list == other.weight_list and \
-               self.protein_scale == other.protein_scale and \
-               self.isoelectric_point == other.isoelectric_point and \
-               self.secondary_structure_fraction == other.secondary_structure_fraction and \
-               self.molecular_weight == other.molecular_weight and \
-               self.kyte_plot == other.kyte_plot and \
-               self.M == other.M and \
-               self.Z == other.Z and \
-               self.pefing == other.pefing and \
-               self.aliphatic_index == other.aliphatic_index and \
-               self.boman_index == other.boman_index and \
-               self.charges == other.charges and \
-               self.hydrophobicity == other.hydrophobicity and \
-               self.hydrophobic_moments == other.hydrophobic_moments and \
-               self.kidera_factors == other.kidera_factors and \
-               self.peptide_types == other.peptide_types
+        return self.sequence == other.sequence
 
 
 def count_acids_from_list(sequence, list):
