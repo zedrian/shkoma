@@ -14,7 +14,7 @@ class ProteinParameters:  # TODO: change to PeptideParameters
         self.aromaticity = analysis.aromaticity()
         self.instability = analysis.instability_index()
         self.flexibility = analysis.flexibility()
-        self.weight_list = None  # analysis.weight_list(11, ?)
+        self.weight_list = None  # analysis.weight_list(11, ?)  # TODO: remove
         self.protein_scale = None  # analysis.protein_scale(?, 11, ?)
         self.isoelectric_point = analysis.isoelectric_point()
         self.secondary_structure_fraction = analysis.secondary_structure_fraction()
@@ -33,7 +33,13 @@ class ProteinParameters:  # TODO: change to PeptideParameters
         self.hydrophobicity = r('seq(sequence)')[0]
         self.hydrophobic_moments = calculate_hydrophobic_moments(sequence)
         self.kidera_factors = calculate_kidera_factors(sequence)
-        self.peptide_types = calculate_peptide_types(sequence, [0, 60, 120, 180, 240, 300])
+        angles = [{'name': 'Alpha-helix', 'angle': -47},
+                  {'name': '3-10-helix', 'angle': -26},
+                  {'name': 'Pi-helix', 'angle': -80},
+                  {'name': 'Omega', 'angle': 180},
+                  {'name': 'Antiparallel beta-sheet', 'angle': 135},
+                  {'name': 'Parallel beta-sheet', 'angle': 113}]
+        self.peptide_types = calculate_peptide_types(sequence, angles)
 
     def __str__(self):
         return '  Sequence length: ' + str(self.sequence_length) + '\n' + \
@@ -239,9 +245,10 @@ def calculate_peptide_types(sequence, angles):
 
     types = []
     for angle in angles:
-        data = r('membpos(sequence, {0})'.format(angle))
+        data = r('membpos(sequence, {0})'.format(angle['angle']))
         current_types = {}
-        current_types['angle'] = angle
+        current_types['name'] = angle['name']
+        current_types['angle'] = angle['angle']
         current_types['types'] = []
         for i in range(0, len(data[0])):
             line = {}
@@ -259,7 +266,7 @@ def peptide_types_to_string(types, prefix):
     result = prefix + 'Peptide types, calculated for different angles:\n'
 
     for current_types in types:
-        result += prefix + '  angle = {0}:\n'.format(current_types['angle']) + \
+        result += prefix + '  {0} (angle = {1}):\n'.format(current_types['name'], current_types['angle']) + \
                   prefix + '    {0:>15}{1:>10}{2:>10}{3:>15}\n'.format('PEPTIDE', 'H', 'uH', 'MEMB_POSITION')
         for line in current_types['types']:
             result += prefix + '    {0:>15}{1:>10.3f}{2:>10.3f}{3:>15}\n'.format(line['peptide'], line['H'], line['uH'],
