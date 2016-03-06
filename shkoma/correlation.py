@@ -5,6 +5,7 @@ from sys import stdout
 from shkoma.alignment import cut_received_peptide_sequences, trypsinolize_sequence
 from shkoma.peptide import Peptide
 from shkoma.peptide_match import PeptideMatch
+from shkoma.peptide_parameters import PeptideParameters
 from shkoma.peptide_record import PeptideRecord, find_peptide_record_with_peptide
 from shkoma.protein import Protein, find_protein_with_id
 from shkoma.protein_record import ProteinRecord, find_protein_record_with_protein
@@ -73,7 +74,7 @@ def construct_protein_records(proteins, main_data):
     # 1. process all main data
     for line in main_data:
         # 1.1. construct peptide and peptide match from current analysis
-        current_peptide = Peptide(sequence=b2str(line['sequence']), pI=line['peptide_pI'])
+        current_peptide = Peptide(sequence=b2str(line['sequence']))
         current_peptide_match = PeptideMatch(analysis_name=b2str(line['filename']), score=line['score'],
                                              reverse_score=line['reverseScore'],
                                              percent_of_scored_peak_intensity=line['percent_scored_peak_intensity'],
@@ -124,6 +125,33 @@ def fill_protein_parameters(protein_records):
         protein_record.protein_parameters = ProteinParameters(protein_record.protein.sequence)
         index += 1
     print('Done.')
+
+
+# fill computational peptide parameters for each protein record
+def fill_peptide_parameters(protein_records):
+    protein_index = 1
+    for protein_record in protein_records:
+        print('Processing protein record #{0} of {1}.'.format(protein_index, len(protein_records)))
+        stdout.flush()
+
+        # 1. process received peptide records first
+        peptide_index = 1
+        for peptide_record in protein_record.received_peptide_records:
+            print('Processing received peptide #{0} of {1}.'.format(peptide_index, len(protein_record.received_peptide_records)))
+            stdout.flush()
+            peptide_record.peptide_parameters = PeptideParameters(peptide_record.peptide.sequence)
+            peptide_index += 1
+
+        # 2. process then missed peptide records
+        peptide_index = 1
+        for peptide_record in protein_record.missed_peptide_records:
+            print('Processing missed peptide #{0} of {1}.'.format(peptide_index, len(protein_record.missed_peptide_records)))
+            stdout.flush()
+            peptide_record.peptide_parameters = PeptideParameters(peptide_record.peptide.sequence)
+            peptide_index += 1
+
+        protein_index += 1
+    print('Processing protein records: done.')
 
 
 # fill lists of missed peptide records for each protein record
