@@ -1,4 +1,5 @@
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
+from Bio.SeqUtils.ProtParamData import *
 from rpy2.robjects import r
 from numpy import arange
 
@@ -14,7 +15,10 @@ class PeptideParameters:
         self.aromaticity = analysis.aromaticity()
         self.instability = analysis.instability_index()
         self.flexibility = analysis.flexibility()
-        self.protein_scale = None  # analysis.protein_scale(?, 11, ?)
+        protein_scale_parameters = [{'name': 'Hydrophilicity', 'dictionary': hw},
+                                    {'name': 'Surface accessibility', 'dictionary': em},
+                                    {'name': 'Janin Interior to surface transfer energy scale', 'dictionary': ja}]
+        self.protein_scales = calculate_protein_scales(analysis, protein_scale_parameters)
         self.isoelectric_point = analysis.isoelectric_point()
         self.secondary_structure_fraction = calculate_secondary_structure_fraction(analysis)
         self.molecular_weight = analysis.molecular_weight()
@@ -47,7 +51,7 @@ class PeptideParameters:
                '  Aromaticity: {0:.3f}\n'.format(self.aromaticity) + \
                '  Instability: {0:.3f}\n'.format(self.instability) + \
                '  Flexibility: ' + str(self.flexibility) + '\n' + \
-               '  Protein scale: ' + str(self.protein_scale) + '\n' + \
+               protein_scales_to_string(self.protein_scales, '  ') + \
                '  Isoelectric point: {0:.3f}\n'.format(self.isoelectric_point) + \
                secondary_structure_fraction_to_string(self.secondary_structure_fraction, '  ') + \
                '  Molecular weight: {0:.3f}\n'.format(self.molecular_weight) + \
@@ -89,6 +93,26 @@ def calculate_amino_acids_composition(sequence):
     composition['Basic'] = count_acids_from_list(sequence, ['H', 'K', 'R'])
     composition['Acidic'] = count_acids_from_list(sequence, ['B', 'D', 'E', 'Z'])
     return composition
+
+
+def calculate_protein_scales(analysis, protein_scale_parameters):
+    protein_scales = []
+
+    for parameter in protein_scale_parameters:
+        scale = {}
+        scale['name'] = parameter['name']
+        scale['value'] = analysis.protein_scale(parameter['dictionary'], window=9, edge=1.0)
+        protein_scales.append(scale)
+
+    return protein_scales
+
+def protein_scales_to_string(protein_scales, prefix):
+    result = prefix + 'Protein scales:\n'
+
+    for scale in protein_scales:
+        result += prefix + '  {0}: {1}\n'.format(scale['name'], scale['value'])
+
+    return result
 
 
 def calculate_secondary_structure_fraction(analysis):
