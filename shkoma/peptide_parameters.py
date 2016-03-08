@@ -3,6 +3,8 @@ from Bio.SeqUtils.ProtParamData import *
 from rpy2.robjects import r
 from numpy import arange
 
+from shkoma.additional_protein_parameter_data import *
+
 
 class PeptideParameters:
     def __init__(self, sequence):
@@ -17,7 +19,12 @@ class PeptideParameters:
         self.flexibility = analysis.flexibility()
         protein_scale_parameters = [{'name': 'Hydrophilicity', 'dictionary': hw},
                                     {'name': 'Surface accessibility', 'dictionary': em},
-                                    {'name': 'Janin Interior to surface transfer energy scale', 'dictionary': ja}]
+                                    {'name': 'Janin Interior to surface transfer energy scale', 'dictionary': ja},
+                                    {'name': 'Bulkiness', 'dictionary': bulkiness},
+                                    {'name': 'Polarity', 'dictionary': polarity},
+                                    {'name': 'Buried residues', 'dictionary': buried_residues},
+                                    {'name': 'Average area buried', 'dictionary': average_area_buried},
+                                    {'name': 'Retention time', 'dictionary': retention_time}]
         self.protein_scales = calculate_protein_scales(analysis, protein_scale_parameters)
         self.isoelectric_point = analysis.isoelectric_point()
         self.secondary_structure_fraction = calculate_secondary_structure_fraction(analysis)
