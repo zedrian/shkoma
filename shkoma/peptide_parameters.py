@@ -209,7 +209,7 @@ def calculate_hydrophobic_moments(sequence, angles):
         moment = {}
         moment['name'] = angle['name']
         moment['angle'] = angle['angle']
-        moment['moment'] = r('hmoment(sequence, {0}, 11)'.format(angle['angle']))[0]
+        moment['moment'] = r('hmoment(sequence, {0}, 9)'.format(angle['angle']))[0]
         moments.append(moment)
 
     return moments
