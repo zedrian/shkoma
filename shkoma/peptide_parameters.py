@@ -16,7 +16,7 @@ class PeptideParameters:
         self.amino_acids_composition = calculate_amino_acids_composition(sequence)
         self.aromaticity = analysis.aromaticity()
         self.instability = analysis.instability_index()
-        self.flexibility = analysis.flexibility()
+        self.flexibility = calculate_flexibility(sequence)
         protein_scale_parameters = [{'name': 'Hydrophilicity', 'dictionary': hw},
                                     {'name': 'Surface accessibility', 'dictionary': em},
                                     {'name': 'Janin Interior to surface transfer energy scale', 'dictionary': ja},
@@ -54,7 +54,7 @@ class PeptideParameters:
     def __str__(self):
         return '  Sequence length: ' + str(self.sequence_length) + '\n' + \
                amino_acids_percents_to_string(self.amino_acid_percents, '  ') + \
-               amino_acids_composition_to_string(self.amino_acids_composition, '  ', self.sequence_length) + \
+               amino_acids_composition_to_string(self.amino_acids_composition, '  ') + \
                '  Aromaticity: {0:.3f}\n'.format(self.aromaticity) + \
                '  Instability: {0:.3f}\n'.format(self.instability) + \
                '  Flexibility: ' + str(self.flexibility) + '\n' + \
@@ -90,28 +90,84 @@ def count_acids_from_list(sequence, list):
 
 
 def calculate_amino_acids_composition(sequence):
-    composition = {}
-    composition['Small'] = count_acids_from_list(sequence, ['A', 'B', 'C', 'D', 'G', 'N', 'P', 'S', 'T', 'V'])
-    composition['Aliphatic'] = count_acids_from_list(sequence, ['A', 'I', 'L', 'V'])
-    composition['Aromatic'] = count_acids_from_list(sequence, ['F', 'H', 'W', 'Y'])
-    composition['Non-polar'] = count_acids_from_list(sequence, ['A', 'C', 'F', 'G', 'I', 'L', 'M', 'P', 'V', 'W', 'Y'])
-    composition['Polar'] = count_acids_from_list(sequence, ['D', 'E', 'H', 'K', 'N', 'Q', 'R', 'S', 'T', 'Z'])
-    composition['Charged'] = count_acids_from_list(sequence, ['B', 'D', 'E', 'H', 'K', 'R', 'Z'])
-    composition['Basic'] = count_acids_from_list(sequence, ['H', 'K', 'R'])
-    composition['Acidic'] = count_acids_from_list(sequence, ['B', 'D', 'E', 'Z'])
+    composition = []
+    acid_groups = [{'name': 'Small', 'acids': ['A', 'B', 'C', 'D', 'G', 'N', 'P', 'S', 'T', 'V']},
+                   {'name': 'Aliphatic', 'acids': ['A', 'I', 'L', 'V']},
+                   {'name': 'Aromatic', 'acids': ['F', 'H', 'W', 'Y']},
+                   {'name': 'Non-polar', 'acids': ['A', 'C', 'F', 'G', 'I', 'L', 'M', 'P', 'V', 'W', 'Y']},
+                   {'name': 'Polar', 'acids': ['D', 'E', 'H', 'K', 'N', 'Q', 'R', 'S', 'T', 'Z']},
+                   {'name': 'Charged', 'acids': ['B', 'D', 'E', 'H', 'K', 'R', 'Z']},
+                   {'name': 'Basic', 'acids': ['H', 'K', 'R']},
+                   {'name': 'Acidic', 'acids': ['B', 'D', 'E', 'Z']}]
+
+    for group in acid_groups:
+        current_group_composition = {}
+        current_group_composition['name'] = group['name']
+        current_group_composition['amount'] = count_acids_from_list(sequence, group['acids'])
+        current_group_composition['percent'] = current_group_composition['amount'] / len(sequence)
+        composition.append(current_group_composition)
+
     return composition
+
+
+def calculate_flexibility(sequence):
+    if len(sequence) == 1:
+        return [Flex[sequence[0]]]
+
+    flexibilities = Flex
+    window_size = 9
+    weights = [0.25, 0.4375, 0.625, 0.8125, 1]
+    sum = 5.25
+    if len(sequence) < window_size:
+        window_size = len(sequence)
+
+        unit = 2 * 0.6 / (window_size - 1)
+        weights = [0.0] * (window_size // 2)
+        sum = 0
+        for i in range(window_size // 2):
+            weights[i] = 0.4 + unit * i
+            sum += weights[i]
+        sum *= 2
+        if window_size % 2 == 1:
+            sum += 1
+            weights.append(1.0)
+
+    scores = []
+
+    for i in range(len(sequence) - window_size):
+        subsequence = sequence[i:i + window_size]
+        score = 0.0
+
+        for j in range(window_size // 2):
+            front = subsequence[j]
+            back = subsequence[window_size - j - 1]
+            score += (flexibilities[front] + flexibilities[back]) * weights[j]
+
+        middle = subsequence[window_size // 2 + 1]
+        score += flexibilities[middle]
+
+        scores.append(score / sum)
+
+    return scores
 
 
 def calculate_protein_scales(analysis, protein_scale_parameters):
     protein_scales = []
 
+    window_size = 9
+    if analysis.length < 9:
+        window_size = analysis.length
     for parameter in protein_scale_parameters:
         scale = {}
         scale['name'] = parameter['name']
-        scale['value'] = analysis.protein_scale(parameter['dictionary'], window=9, edge=1.0)
+        if window_size == 1:
+            scale['value'] = None
+        else:
+            scale['value'] = analysis.protein_scale(parameter['dictionary'], window=window_size, edge=1.0)
         protein_scales.append(scale)
 
     return protein_scales
+
 
 def protein_scales_to_string(protein_scales, prefix):
     result = prefix + 'Protein scales:\n'
@@ -148,14 +204,12 @@ def amino_acids_percents_to_string(percents, prefix):
     return result
 
 
-def amino_acids_composition_to_string(composition, prefix, sequence_length):
+def amino_acids_composition_to_string(composition, prefix):
     result = prefix + 'Amino acids composition:\n' + \
              prefix + '  {0:<10}{1:>10}{2:>12}\n'.format('GROUP', 'NUMBER', 'PERCENT')
 
-    groups = ['Small', 'Aliphatic', 'Aromatic', 'Non-polar', 'Polar', 'Charged', 'Basic', 'Acidic']
-    for group in groups:
-        result += prefix + '  {0:<10}{1:>10}{2:>12.3%}\n'.format(group, composition[group],
-                                                                 composition[group] / sequence_length)
+    for group in composition:
+        result += prefix + '  {0:<10}{1:>10}{2:>12.3f}\n'.format(group['name'], group['amount'], group['percent'])
 
     return result
 
