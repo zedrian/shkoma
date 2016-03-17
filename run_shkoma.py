@@ -1,5 +1,5 @@
 if __name__ == '__main__':
-    from shkoma import correlation
+    from shkoma import correlation, statistics
 
     main_data = correlation.load_main_data_from_csv(input('Please, enter the main data .scv file name: '))
 
@@ -23,3 +23,17 @@ if __name__ == '__main__':
     if user_choice.upper() == 'YES':
         folder_name = input('Please, enter folder name: ')
         correlation.save_protein_records_to_folder(protein_records, folder_name)
+
+    received, missed = statistics.fill_parameter_lists(protein_records)
+    received_statistics = statistics.calculate_simple_statistics_for_parameters_list(received)
+    missed_statistics = statistics.calculate_simple_statistics_for_parameters_list(missed)
+
+    user_choice = input('Do you want to save statistics for received peptides [Yes/No]? ')
+    if user_choice.upper() == 'YES':
+        file_name = input('Please, enter new file name: ')
+        statistics.save_simple_statistics_to_csv(received_statistics, file_name)
+
+    user_choice = input('Do you want to save statistics for missed peptides [Yes/No]? ')
+    if user_choice.upper() == 'YES':
+        file_name = input('Please, enter new file name: ')
+        statistics.save_simple_statistics_to_csv(missed_statistics, file_name)
