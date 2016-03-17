@@ -50,9 +50,8 @@ def construct_proteins(main_data):
 
 # load sequences from uniprot.org and fill such field in instances of class Protein
 def fill_protein_sequences(proteins):
-    label = 'Filling protein sequences: '
+    print('Filling protein sequences:')
 
-    show_progress(label, 40, 0.0)
     for i in range(0, len(proteins)):
         # 1. send requests while server will not get correct response
         server_response = None
@@ -61,9 +60,7 @@ def fill_protein_sequences(proteins):
 
         # 2. store sequence in protein
         proteins[i].sequence = server_response[proteins[i].id]['sequence']
-
-        show_progress(label, 40, i / len(proteins))
-    print()
+    print('Filling protein sequences: done')
 
 
 # save list of proteins to file
@@ -174,6 +171,7 @@ def fill_protein_parameters(protein_records):
 
 # fill computational peptide parameters for each protein record
 def fill_peptide_parameters(protein_records):
+    print('Filling peptide parameters:')
     protein_index = 1
     for protein_record in protein_records:
         print('Processing protein record #{0} of {1}:'.format(protein_index, len(protein_records)))
@@ -201,7 +199,7 @@ def fill_peptide_parameters(protein_records):
 
         protein_index += 1
         print()
-    print('Processing protein records: done.')
+    print('Filling peptide parameters: done.')
 
 
 # fill lists of missed peptide records for each protein record
