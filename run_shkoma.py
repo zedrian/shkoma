@@ -16,7 +16,6 @@ if __name__ == '__main__':
         proteins = correlation.load_proteins_from_csv(input('Please, enter proteins file name: '))
 
     protein_records = correlation.construct_protein_records(proteins, main_data)
-    protein_records = protein_records[0:2]
     correlation.fill_missed_peptide_records(protein_records)
     correlation.fill_peptide_parameters(protein_records)
 
