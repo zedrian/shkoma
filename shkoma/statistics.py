@@ -30,11 +30,6 @@ def fill_parameter_lists(protein_records):
                                'Aliphatic index', 'Boman index', 'Hydrophobicity']
     for name in kidera_factor_labels:
         peptide_parameter_names.append(name)
-    # received['Kidera factors per peptide correlation (Kendall)'] = []
-    # received['Amino acid percents per peptide correlation (Kendall)'] = []
-    # received['Amino acid compositions per peptide correlation (Kendall)'] = []
-    # received['Charges per peptide correlation (Kendall)'] = []
-    # received['Hydrophobic moments per peptide correlation (Kendall)'] = []
 
     total_received_peptides_number = 0
     total_missed_peptides_number = 0
@@ -42,12 +37,94 @@ def fill_parameter_lists(protein_records):
         total_received_peptides_number += len(protein_record.received_peptide_records)
         total_missed_peptides_number += len(protein_record.missed_peptide_records)
 
-    received = DataFrame(zeros((total_received_peptides_number, len(peptide_parameter_names)), dtype=float64),
-                         columns=peptide_parameter_names)
-    missed = DataFrame(zeros((total_missed_peptides_number, len(peptide_parameter_names)), dtype=float64),
-                       columns=peptide_parameter_names)
-    # received_kidera_factors = []
-    # missed_kidera_factors = []
+    received_parameters = DataFrame(zeros((total_received_peptides_number, len(peptide_parameter_names)),
+                                          dtype=float64), columns=peptide_parameter_names)
+    missed_parameters = DataFrame(zeros((total_missed_peptides_number, len(peptide_parameter_names)),
+                                        dtype=float64), columns=peptide_parameter_names)
+
+    # fill received peptides parameters
+    label = 'Filling received peptides parameter lists: '
+    show_progress(label, 40, 0.0)
+    index = 1
+    for protein_record in protein_records:
+        for received_peptide_record in protein_record.received_peptide_records:
+            received_parameters['Sequence length'][index] = received_peptide_record.peptide_parameters.sequence_length
+            received_parameters['Aromaticity'][index] = received_peptide_record.peptide_parameters.aromaticity
+            received_parameters['Instability'][index] = received_peptide_record.peptide_parameters.instability
+            received_parameters['Isoelectric point'][
+                index] = received_peptide_record.peptide_parameters.isoelectric_point
+            received_parameters['Molecular weight'][index] = received_peptide_record.peptide_parameters.molecular_weight
+            received_parameters['Kyte plot'][index] = received_peptide_record.peptide_parameters.kyte_plot
+            received_parameters['Aliphatic index'][index] = received_peptide_record.peptide_parameters.aliphatic_index
+            received_parameters['Boman index'][index] = received_peptide_record.peptide_parameters.boman_index
+            received_parameters['Hydrophobicity'][index] = received_peptide_record.peptide_parameters.hydrophobicity
+
+            for kidera_factor in received_peptide_record.peptide_parameters.kidera_factors:
+                received_parameters['Kidera factor: {0}'.format(kidera_factor['name'])][index] = kidera_factor['value']
+
+            show_progress(label, 40, index / total_received_peptides_number)
+            index += 1
+    print()
+
+    # fill missed peptides parameters
+    label = 'Filling missed peptides parameter lists: '
+    show_progress(label, 40, 0.0)
+    index = 1
+    for protein_record in protein_records:
+        for missed_peptide_record in protein_record.missed_peptide_records:
+            missed_parameters['Sequence length'][index] = missed_peptide_record.peptide_parameters.sequence_length
+            missed_parameters['Aromaticity'][index] = missed_peptide_record.peptide_parameters.aromaticity
+            missed_parameters['Instability'][index] = missed_peptide_record.peptide_parameters.instability
+            missed_parameters['Isoelectric point'][index] = missed_peptide_record.peptide_parameters.isoelectric_point
+            missed_parameters['Molecular weight'][index] = missed_peptide_record.peptide_parameters.molecular_weight
+            missed_parameters['Kyte plot'][index] = missed_peptide_record.peptide_parameters.kyte_plot
+            missed_parameters['Aliphatic index'][index] = missed_peptide_record.peptide_parameters.aliphatic_index
+            missed_parameters['Boman index'][index] = missed_peptide_record.peptide_parameters.boman_index
+            missed_parameters['Hydrophobicity'][index] = missed_peptide_record.peptide_parameters.hydrophobicity
+
+            for kidera_factor in missed_peptide_record.peptide_parameters.kidera_factors:
+                missed_parameters['Kidera factor: {0}'.format(kidera_factor['name'])][index] = kidera_factor['value']
+
+            show_progress(label, 40, index / total_missed_peptides_number)
+            index += 1
+    print()
+
+    return received_parameters, missed_parameters
+
+
+def fill_per_peptide_correlations(protein_records):
+    kidera_factor_names = ['helix.bend.pref', 'side.chain.size', 'extended.str.pref',
+                           'hydrophobicity', 'double.bend.pref', 'partial.spec.vol',
+                           'flat.ext.pref', 'occurrence.alpha.reg', 'pK.C', 'surrounding.hydrop']
+
+    per_peptide_correlation_parameter_names = ['Kidera factors', 'Amino acid percents', 'Amino acid compositions',
+                                               'Charges', 'Hydrophobic moments']
+    per_peptide_correlation_parameter_labels = ['{0} per peptide correlation (Kendall)'.format(name) for name in
+                                                per_peptide_correlation_parameter_names]
+
+    total_received_peptides_number = 0
+    total_missed_peptides_number = 0
+    for protein_record in protein_records:
+        total_received_peptides_number += len(protein_record.received_peptide_records)
+        total_missed_peptides_number += len(protein_record.missed_peptide_records)
+
+    total_received_pairs_number = total_received_peptides_number * (total_received_peptides_number - 1) // 2
+    received_per_peptide_correlations = DataFrame(zeros((total_received_pairs_number,
+                                                         len(per_peptide_correlation_parameter_labels)),
+                                                        dtype=float64),
+                                                  columns=per_peptide_correlation_parameter_labels)
+    total_missed_pairs_number = total_missed_peptides_number * (total_missed_peptides_number - 1) // 2
+    missed_per_peptide_correlations = DataFrame(zeros((total_missed_pairs_number,
+                                                       len(per_peptide_correlation_parameter_labels)),
+                                                      dtype=float64),
+                                                columns=per_peptide_correlation_parameter_labels)
+
+    received_kidera_factors = DataFrame(zeros((total_received_peptides_number, len(kidera_factor_names)),
+                                              dtype=float64),
+                                        columns=kidera_factor_names)
+    missed_kidera_factors = DataFrame(zeros((total_missed_peptides_number, len(kidera_factor_names)),
+                                              dtype=float64),
+                                        columns=kidera_factor_names)
     #
     # received_acid_percents = []
     # missed_acid_percents = []
@@ -60,32 +137,12 @@ def fill_parameter_lists(protein_records):
     #
     # received_hydrophobic_moments = []
     # missed_hydrophobic_moments = []
-
-    # fill received peptides parameters
-    label = 'Filling received peptides parameter lists: '
-    show_progress(label, 40, 0.0)
-    index = 1
     for protein_record in protein_records:
         for received_peptide_record in protein_record.received_peptide_records:
-            received['Sequence length'][index] = received_peptide_record.peptide_parameters.sequence_length
-            received['Aromaticity'][index] = received_peptide_record.peptide_parameters.aromaticity
-            received['Instability'][index] = received_peptide_record.peptide_parameters.instability
-            received['Isoelectric point'][index] = received_peptide_record.peptide_parameters.isoelectric_point
-            received['Molecular weight'][index] = received_peptide_record.peptide_parameters.molecular_weight
-            received['Kyte plot'][index] = received_peptide_record.peptide_parameters.kyte_plot
-            received['Aliphatic index'][index] = received_peptide_record.peptide_parameters.aliphatic_index
-            received['Boman index'][index] = received_peptide_record.peptide_parameters.boman_index
-            received['Hydrophobicity'][index] = received_peptide_record.peptide_parameters.hydrophobicity
-
+            kidera_factor_index = 0
             for kidera_factor in received_peptide_record.peptide_parameters.kidera_factors:
-                received['Kidera factor: {0}'.format(kidera_factor['name'])][index] = kidera_factor['value']
-
-            show_progress(label, 40, index / total_received_peptides_number)
-            index += 1
-
-            #     kidera_factors.append(kidera_factor['value'])
-            # received_kidera_factors.append(kidera_factors)
-
+                received_kidera_factors[kidera_factor['name']][kidera_factor_index] = kidera_factor['value']
+                kidera_factor_index += 1
             # acid_percents = []
             # for acid in 'AGVMDYNSWLFIKPQCERTH':
             #     acid_percents.append(received_peptide_record.peptide_parameters.amino_acid_percents[acid])
@@ -107,30 +164,13 @@ def fill_parameter_lists(protein_records):
             #         hydrophobic_moments.append(moment['moment'])
             # received_hydrophobic_moments.append(hydrophobic_moments)
             # kidera_factors = []
-    print()
 
-    # fill missed peptides parameters
-    label = 'Filling missed peptides parameter lists: '
-    show_progress(label, 40, 0.0)
-    index = 1
     for protein_record in protein_records:
         for missed_peptide_record in protein_record.missed_peptide_records:
-            missed['Sequence length'][index] = missed_peptide_record.peptide_parameters.sequence_length
-            missed['Aromaticity'][index] = missed_peptide_record.peptide_parameters.aromaticity
-            missed['Instability'][index] = missed_peptide_record.peptide_parameters.instability
-            missed['Isoelectric point'][index] = missed_peptide_record.peptide_parameters.isoelectric_point
-            missed['Molecular weight'][index] = missed_peptide_record.peptide_parameters.molecular_weight
-            missed['Kyte plot'][index] = missed_peptide_record.peptide_parameters.kyte_plot
-            missed['Aliphatic index'][index] = missed_peptide_record.peptide_parameters.aliphatic_index
-            missed['Boman index'][index] = missed_peptide_record.peptide_parameters.boman_index
-            missed['Hydrophobicity'][index] = missed_peptide_record.peptide_parameters.hydrophobicity
-
+            kidera_factor_index = 0
             for kidera_factor in missed_peptide_record.peptide_parameters.kidera_factors:
-                missed['Kidera factor: {0}'.format(kidera_factor['name'])][index] = kidera_factor['value']
-
-            show_progress(label, 40, index / total_missed_peptides_number)
-            index += 1
-
+                missed_kidera_factors[kidera_factor['name']][kidera_factor_index] = kidera_factor['value']
+                kidera_factor_index += 1
             #     kidera_factors.append(kidera_factor['value'])
             # missed_kidera_factors.append(kidera_factors)
             #
@@ -154,8 +194,7 @@ def fill_parameter_lists(protein_records):
             #     if moment['name'] != 'Polygly-polypro helix':
             #         hydrophobic_moments.append(moment['moment'])
             # missed_hydrophobic_moments.append(hydrophobic_moments)
-    print()
-    #
+
     # label = 'Calculating Kidera factors Kendall correlation (received peptides): '
     # show_progress(label, 40, 0.0)
     # index = 1
@@ -271,8 +310,7 @@ def fill_parameter_lists(protein_records):
     #                                   missed_hydrophobic_moments[second_moments]).correlation)
     #     show_progress(label, 40, index / len(missed_hydrophobic_moments))
     #     index += 1
-
-    return received, missed
+    pass
 
 
 def calculate_simple_statistics_for_parameters_list(list):
