@@ -15,7 +15,7 @@ if __name__ == '__main__':
     else:
         proteins = correlation.load_proteins_from_csv(input('Please, enter proteins file name: '))
 
-    protein_records = correlation.construct_protein_records(proteins, main_data)
+    protein_records = correlation.construct_protein_records(proteins, main_data)[1:3]
     correlation.fill_missed_peptide_records(protein_records)
     correlation.fill_peptide_parameters(protein_records)
 
@@ -24,9 +24,10 @@ if __name__ == '__main__':
         folder_name = input('Please, enter folder name: ')
         correlation.save_protein_records_to_folder(protein_records, folder_name)
 
-    received, missed = statistics.fill_parameter_lists(protein_records)
-    received_statistics = statistics.calculate_simple_statistics_for_parameters_list(received)
-    missed_statistics = statistics.calculate_simple_statistics_for_parameters_list(missed)
+    received_parameters, missed_parameters = statistics.fill_parameter_lists(protein_records)
+    received_per_peptide_correlations, missed_per_peptide_correlations = statistics.fill_per_peptide_correlations(protein_records)
+    received_statistics = statistics.calculate_simple_statistics(received_parameters, received_per_peptide_correlations)
+    missed_statistics = statistics.calculate_simple_statistics(missed_parameters, missed_per_peptide_correlations)
 
     user_choice = input('Do you want to save statistics for received peptides [Yes/No]? ')
     if user_choice.upper() == 'YES':

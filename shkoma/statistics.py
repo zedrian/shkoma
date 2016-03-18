@@ -1,10 +1,10 @@
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from numpy import zeros, float64
 
 from shkoma.utility import show_progress
 
 
-def calculate_simple_statistics(serie):
+def calculate_simple_statistics_for_serie(serie):
     described = serie.describe()
 
     stats = {}
@@ -119,12 +119,10 @@ def fill_per_peptide_correlations(protein_records):
                                                       dtype=float64),
                                                 columns=per_peptide_correlation_parameter_labels)
 
-    received_kidera_factors = DataFrame(zeros((total_received_peptides_number, len(kidera_factor_names)),
-                                              dtype=float64),
-                                        columns=kidera_factor_names)
-    missed_kidera_factors = DataFrame(zeros((total_missed_peptides_number, len(kidera_factor_names)),
-                                              dtype=float64),
-                                        columns=kidera_factor_names)
+    received_kidera_factors = DataFrame(zeros((len(kidera_factor_names), total_received_peptides_number),
+                                              dtype=float64))
+    missed_kidera_factors = DataFrame(zeros((len(kidera_factor_names), total_missed_peptides_number),
+                                            dtype=float64))
     #
     # received_acid_percents = []
     # missed_acid_percents = []
@@ -137,11 +135,15 @@ def fill_per_peptide_correlations(protein_records):
     #
     # received_hydrophobic_moments = []
     # missed_hydrophobic_moments = []
+
+    label = 'Filling received peptides array-like parameter lists: '
+    show_progress(label, 35, 0.0)
+    index = 1
     for protein_record in protein_records:
         for received_peptide_record in protein_record.received_peptide_records:
             kidera_factor_index = 0
             for kidera_factor in received_peptide_record.peptide_parameters.kidera_factors:
-                received_kidera_factors[kidera_factor['name']][kidera_factor_index] = kidera_factor['value']
+                received_kidera_factors[kidera_factor_index][index-1] = kidera_factor['value']
                 kidera_factor_index += 1
             # acid_percents = []
             # for acid in 'AGVMDYNSWLFIKPQCERTH':
@@ -164,38 +166,57 @@ def fill_per_peptide_correlations(protein_records):
             #         hydrophobic_moments.append(moment['moment'])
             # received_hydrophobic_moments.append(hydrophobic_moments)
             # kidera_factors = []
+            show_progress(label, 35, index / total_received_peptides_number)
+            index += 1
+    print()
 
+    label = 'Filling missed peptides array-like parameter lists: '
+    show_progress(label, 35, 0.0)
+    index = 1
     for protein_record in protein_records:
         for missed_peptide_record in protein_record.missed_peptide_records:
             kidera_factor_index = 0
             for kidera_factor in missed_peptide_record.peptide_parameters.kidera_factors:
-                missed_kidera_factors[kidera_factor['name']][kidera_factor_index] = kidera_factor['value']
+                missed_kidera_factors[kidera_factor_index][index-1] = kidera_factor['value']
                 kidera_factor_index += 1
-            #     kidera_factors.append(kidera_factor['value'])
-            # missed_kidera_factors.append(kidera_factors)
-            #
-            # acid_percents = []
-            # for acid in 'AGVMDYNSWLFIKPQCERTH':
-            #     acid_percents.append(missed_peptide_record.peptide_parameters.amino_acid_percents[acid])
-            # missed_acid_percents.append(acid_percents)
-            #
-            # acid_compound = []
-            # for group in missed_peptide_record.peptide_parameters.amino_acids_composition:
-            #     acid_compound.append(group['percent'])
-            # missed_acid_compounds.append(acid_compound)
-            #
-            # charges = []
-            # for charge in missed_peptide_record.peptide_parameters.charges:
-            #     charges.append(charge['charge'])
-            # missed_charges.append(charges)
-            #
-            # hydrophobic_moments = []
-            # for moment in missed_peptide_record.peptide_parameters.hydrophobic_moments:
-            #     if moment['name'] != 'Polygly-polypro helix':
-            #         hydrophobic_moments.append(moment['moment'])
-            # missed_hydrophobic_moments.append(hydrophobic_moments)
+                #     kidera_factors.append(kidera_factor['value'])
+                # missed_kidera_factors.append(kidera_factors)
+                #
+                # acid_percents = []
+                # for acid in 'AGVMDYNSWLFIKPQCERTH':
+                #     acid_percents.append(missed_peptide_record.peptide_parameters.amino_acid_percents[acid])
+                # missed_acid_percents.append(acid_percents)
+                #
+                # acid_compound = []
+                # for group in missed_peptide_record.peptide_parameters.amino_acids_composition:
+                #     acid_compound.append(group['percent'])
+                # missed_acid_compounds.append(acid_compound)
+                #
+                # charges = []
+                # for charge in missed_peptide_record.peptide_parameters.charges:
+                #     charges.append(charge['charge'])
+                # missed_charges.append(charges)
+                #
+                # hydrophobic_moments = []
+                # for moment in missed_peptide_record.peptide_parameters.hydrophobic_moments:
+                #     if moment['name'] != 'Polygly-polypro helix':
+                #         hydrophobic_moments.append(moment['moment'])
+                # missed_hydrophobic_moments.append(hydrophobic_moments)
+                show_progress(label, 35, index / total_missed_peptides_number)
+                index += 1
+    print()
 
-    # label = 'Calculating Kidera factors Kendall correlation (received peptides): '
+    print('Calculating Kidera factors per peptide Kendall correlation (received peptides): ', end='')
+    received_per_peptide_correlations['Kidera factors'] = convert_correlation_matrix_to_serie(
+        received_kidera_factors.corr(method='pearson'), 'Kidera factors')
+    print('done')
+
+    print('Calculating Kidera factors per peptide Kendall correlation (missed peptides): ', end='')
+    missed_per_peptide_correlations['Kidera factors'] = convert_correlation_matrix_to_serie(
+        missed_kidera_factors.corr(method='pearson'), 'Kidera factors')
+    print('done')
+
+
     # show_progress(label, 40, 0.0)
     # index = 1
     # for first_kidera in range(0, len(received_kidera_factors)):
@@ -310,33 +331,43 @@ def fill_per_peptide_correlations(protein_records):
     #                                   missed_hydrophobic_moments[second_moments]).correlation)
     #     show_progress(label, 40, index / len(missed_hydrophobic_moments))
     #     index += 1
-    pass
+    return received_per_peptide_correlations, missed_per_peptide_correlations
 
 
-def calculate_simple_statistics_for_parameters_list(list):
+def convert_correlation_matrix_to_serie(matrix, name):
+    size = len(matrix)
+    total_pairs_number = size * (size - 1) // 2
+
+    serie = Series(zeros(total_pairs_number, dtype=float64), name=name)
+
+    pair_index = 0
+    for i in range(0, size - 1):
+        for j in range(i + 1, size - 1):
+            serie[pair_index] = matrix[i][j]
+            pair_index += 1
+
+    return serie
+
+
+def calculate_simple_statistics(parameters, per_peptide_correlations=None):
     label = 'Calculating simple statistics: '
     show_progress(label, 40, 0.0)
     stats = {}
 
-    kidera_factor_names = ['helix.bend.pref', 'side.chain.size', 'extended.str.pref',
-                           'hydrophobicity', 'double.bend.pref', 'partial.spec.vol',
-                           'flat.ext.pref', 'occurrence.alpha.reg', 'pK.C', 'surrounding.hydrop']
-    parameter_names = ['Sequence length', 'Aromaticity', 'Instability',
-                       'Isoelectric point', 'Molecular weight', 'Kyte plot',
-                       'Aliphatic index', 'Boman index', 'Hydrophobicity']
-    for name in kidera_factor_names:
-        parameter_names.append('Kidera factor: {0}'.format(name))
-    # parameter_names.append('Kidera factors per peptide correlation (Kendall)')
-    # parameter_names.append('Amino acid percents per peptide correlation (Kendall)')
-    # parameter_names.append('Amino acid compositions per peptide correlation (Kendall)')
-    # parameter_names.append('Charges per peptide correlation (Kendall)')
-    # parameter_names.append('Hydrophobic moments per peptide correlation (Kendall)')
+    total_stats_length = len(parameters.columns)
+    if per_peptide_correlations is not None:
+        total_stats_length += len(per_peptide_correlations.columns)
 
     index = 1
-    for parameter_name in parameter_names:
-        stats[parameter_name] = calculate_simple_statistics(list[parameter_name])
-        show_progress(label, 40, index / len(parameter_names))
+    for parameter_name in parameters.columns:
+        stats[parameter_name] = calculate_simple_statistics_for_serie(parameters[parameter_name])
+        show_progress(label, 40, index / total_stats_length)
         index += 1
+    if per_peptide_correlations is not None:
+        for parameter_name in per_peptide_correlations.columns:
+            stats[parameter_name] = calculate_simple_statistics_for_serie(per_peptide_correlations[parameter_name])
+            show_progress(label, 40, index / total_stats_length)
+            index += 1
     print()
 
     return stats
@@ -346,27 +377,13 @@ def save_simple_statistics_to_csv(stats, file_name):
     label = 'Saving simple statistics to \'{0}\': '.format(file_name)
     show_progress(label, 40, 0.0)
 
-    kidera_factor_names = ['helix.bend.pref', 'side.chain.size', 'extended.str.pref',
-                           'hydrophobicity', 'double.bend.pref', 'partial.spec.vol',
-                           'flat.ext.pref', 'occurrence.alpha.reg', 'pK.C', 'surrounding.hydrop']
-    parameter_names = ['Sequence length', 'Aromaticity', 'Instability',
-                       'Isoelectric point', 'Molecular weight', 'Kyte plot',
-                       'Aliphatic index', 'Boman index', 'Hydrophobicity']
-    for name in kidera_factor_names:
-        parameter_names.append('Kidera factor: {0}'.format(name))
-    # parameter_names.append('Kidera factors per peptide correlation (Kendall)')
-    # parameter_names.append('Amino acid percents per peptide correlation (Kendall)')
-    # parameter_names.append('Amino acid compositions per peptide correlation (Kendall)')
-    # parameter_names.append('Charges per peptide correlation (Kendall)')
-    # parameter_names.append('Hydrophobic moments per peptide correlation (Kendall)')
-
     index = 1
     with open(file_name, 'w') as file:
         file.write('name;mean;variance;skewness;kurtosis;std;variation\n')
-        for name in parameter_names:
+        for name in stats:
             file.write('{0};{1};{2};{3};{4};{5};{6}\n'.format(name, stats[name]['mean'], stats[name]['variance'],
                                                               stats[name]['skewness'], stats[name]['kurtosis'],
                                                               stats[name]['std'], stats[name]['variation']))
-            show_progress(label, 40, index / len(parameter_names))
+            show_progress(label, 40, index / len(stats))
             index += 1
     print()
