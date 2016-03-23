@@ -99,7 +99,7 @@ def fill_per_peptide_correlations(protein_records):
 
     per_peptide_correlation_parameter_names = ['Kidera factors', 'Amino acid percents', 'Amino acid compositions',
                                                'Charges', 'Hydrophobic moments']
-    per_peptide_correlation_parameter_labels = ['{0} per peptide correlation (Kendall)'.format(name) for name in
+    per_peptide_correlation_parameter_labels = ['{0} per peptide correlation (Pearson)'.format(name) for name in
                                                 per_peptide_correlation_parameter_names]
 
     total_received_peptides_number = 0
@@ -206,12 +206,12 @@ def fill_per_peptide_correlations(protein_records):
                 index += 1
     print()
 
-    print('Calculating Kidera factors per peptide Kendall correlation (received peptides): ', end='')
+    print('Calculating Kidera factors per peptide Pearson correlation (received peptides): ', end='')
     received_per_peptide_correlations['Kidera factors'] = convert_correlation_matrix_to_serie(
         received_kidera_factors.corr(method='pearson'), 'Kidera factors')
     print('done')
 
-    print('Calculating Kidera factors per peptide Kendall correlation (missed peptides): ', end='')
+    print('Calculating Kidera factors per peptide Pearson correlation (missed peptides): ', end='')
     missed_per_peptide_correlations['Kidera factors'] = convert_correlation_matrix_to_serie(
         missed_kidera_factors.corr(method='pearson'), 'Kidera factors')
     print('done')
