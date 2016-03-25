@@ -323,7 +323,7 @@ def convert_correlation_matrix_to_serie(matrix, name):
     pair_index = 0
     for i in range(0, size - 1):
         for j in range(i + 1, size - 1):
-            serie[pair_index] = matrix[i][j]
+            serie[pair_index] = abs(matrix[i][j])
             pair_index += 1
 
     return serie
