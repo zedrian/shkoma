@@ -14,7 +14,6 @@ def calculate_simple_statistics_for_serie(serie):
     stats['kurtosis'] = serie.kurtosis()
 
     stats['std'] = described['std']
-    stats['variation'] = 0  # TODO: check how to calculate it using pandas
 
     return stats
 
@@ -51,8 +50,8 @@ def fill_parameter_lists(protein_records):
             received_parameters['Sequence length'][index] = received_peptide_record.peptide_parameters.sequence_length
             received_parameters['Aromaticity'][index] = received_peptide_record.peptide_parameters.aromaticity
             received_parameters['Instability'][index] = received_peptide_record.peptide_parameters.instability
-            received_parameters['Isoelectric point'][
-                index] = received_peptide_record.peptide_parameters.isoelectric_point
+            received_parameters['Isoelectric point'][index] = \
+                received_peptide_record.peptide_parameters.isoelectric_point
             received_parameters['Molecular weight'][index] = received_peptide_record.peptide_parameters.molecular_weight
             received_parameters['Kyte plot'][index] = received_peptide_record.peptide_parameters.kyte_plot
             received_parameters['Aliphatic index'][index] = received_peptide_record.peptide_parameters.aliphatic_index
@@ -378,11 +377,11 @@ def save_simple_statistics_to_csv(stats, file_name):
 
     index = 1
     with open(file_name, 'w') as file:
-        file.write('name;mean;variance;skewness;kurtosis;std;variation\n')
+        file.write('name;mean;variance;skewness;kurtosis;std\n')
         for name in stats:
-            file.write('{0};{1};{2};{3};{4};{5};{6}\n'.format(name, stats[name]['mean'], stats[name]['variance'],
+            file.write('{0};{1};{2};{3};{4};{5}\n'.format(name, stats[name]['mean'], stats[name]['variance'],
                                                               stats[name]['skewness'], stats[name]['kurtosis'],
-                                                              stats[name]['std'], stats[name]['variation']))
+                                                              stats[name]['std']))
             show_progress(label, 40, index / len(stats))
             index += 1
     print()
