@@ -128,9 +128,14 @@ def fill_per_peptide_correlations(protein_records):
     missed_acid_percents = DataFrame(zeros((len('AGVMDYNSWLFIKPQCERTH'), total_missed_peptides_number),
                                            dtype=float64))
 
-    # received_acid_compounds = []
-    # missed_acid_compounds = []
-    #
+    acid_group_names = ['Small', 'Aliphatic', 'Aromatic',
+                        'Non-polar', 'Polar', 'Charged',
+                        'Basic', 'Acidic']
+    received_acid_compounds = DataFrame(zeros((len(acid_group_names), total_received_peptides_number),
+                                              dtype=float64))
+    missed_acid_compounds = DataFrame(zeros((len(acid_group_names), total_missed_peptides_number),
+                                            dtype=float64))
+
     # received_charges = []
     # missed_charges = []
     #
@@ -144,19 +149,20 @@ def fill_per_peptide_correlations(protein_records):
         for received_peptide_record in protein_record.received_peptide_records:
             kidera_factor_index = 0
             for kidera_factor in received_peptide_record.peptide_parameters.kidera_factors:
-                received_kidera_factors[index-1][kidera_factor_index] = kidera_factor['value']
+                received_kidera_factors[index - 1][kidera_factor_index] = kidera_factor['value']
                 kidera_factor_index += 1
 
             acid_index = 0
             for acid in 'AGVMDYNSWLFIKPQCERTH':
-                received_acid_percents[index-1][acid_index] = received_peptide_record.peptide_parameters.amino_acid_percents[acid]
+                received_acid_percents[index - 1][acid_index] = \
+                    received_peptide_record.peptide_parameters.amino_acid_percents[acid]
                 acid_index += 1
 
-            # acid_compound = []
-            # for group in received_peptide_record.peptide_parameters.amino_acids_composition:
-            #     acid_compound.append(group['percent'])
-            # received_acid_compounds.append(acid_compound)
-            #
+            group_index = 0
+            for group in received_peptide_record.peptide_parameters.amino_acids_composition:
+                received_acid_compounds[index - 1][group_index] = group['percent']
+                group_index += 1
+
             # charges = []
             # for charge in received_peptide_record.peptide_parameters.charges:
             #     charges.append(charge['charge'])
@@ -179,19 +185,20 @@ def fill_per_peptide_correlations(protein_records):
         for missed_peptide_record in protein_record.missed_peptide_records:
             kidera_factor_index = 0
             for kidera_factor in missed_peptide_record.peptide_parameters.kidera_factors:
-                missed_kidera_factors[index-1][kidera_factor_index] = kidera_factor['value']
+                missed_kidera_factors[index - 1][kidera_factor_index] = kidera_factor['value']
                 kidera_factor_index += 1
 
             acid_index = 0
             for acid in 'AGVMDYNSWLFIKPQCERTH':
-                missed_acid_percents[index-1][acid_index] = missed_peptide_record.peptide_parameters.amino_acid_percents[acid]
+                missed_acid_percents[index - 1][acid_index] = \
+                    missed_peptide_record.peptide_parameters.amino_acid_percents[acid]
                 acid_index += 1
-                #
-                # acid_compound = []
-                # for group in missed_peptide_record.peptide_parameters.amino_acids_composition:
-                #     acid_compound.append(group['percent'])
-                # missed_acid_compounds.append(acid_compound)
-                #
+
+            group_index = 0
+            for group in missed_peptide_record.peptide_parameters.amino_acids_composition:
+                missed_acid_compounds[index - 1][group_index] = group['percent']
+                group_index += 1
+
                 # charges = []
                 # for charge in missed_peptide_record.peptide_parameters.charges:
                 #     charges.append(charge['charge'])
@@ -224,53 +231,18 @@ def fill_per_peptide_correlations(protein_records):
     print('Calculating amino acid percents per peptide Pearson correlation (missed peptides): ', end='')
     missed_per_peptide_correlations['Amino acid percents per peptide correlation (Pearson)'] = \
         convert_correlation_matrix_to_serie(missed_acid_percents.corr(method='pearson'), 'Amino acid percents')
+    print('done')
 
-    # show_progress(label, 40, 0.0)
-    # index = 1
-    # for first_kidera in range(0, len(received_kidera_factors)):
-    #     for second_kidera in range(first_kidera + 1, len(received_kidera_factors)):
-    #         received['Kidera factors per peptide correlation (Kendall)'].append(
-    #             statistics.kendalltau(received_kidera_factors[first_kidera],
-    #                                   received_kidera_factors[second_kidera]).correlation)
-    #     show_progress(label, 40, index / len(received_kidera_factors))
-    #     index += 1
-    # print()
-    #
-    # label = 'Calculating Kidera factors Kendall correlation (missed peptides): '
-    # show_progress(label, 40, 0.0)
-    # index = 1
-    # for first_kidera in range(0, len(missed_kidera_factors)):
-    #     for second_kidera in range(first_kidera + 1, len(received_kidera_factors)):
-    #         missed['Kidera factors per peptide correlation (Kendall)'].append(
-    #             statistics.kendalltau(missed_kidera_factors[first_kidera],
-    #                                   missed_kidera_factors[second_kidera]).correlation)
-    #     show_progress(label, 40, index / len(missed_kidera_factors))
-    #     index += 1
-    # print()
-    #
-    # label = 'Calculating amino acid percents Kendall correlation (received peptides): '
-    # show_progress(label, 40, 0.0)
-    # index = 1
-    # for first_percent in range(0, len(received_acid_percents)):
-    #     for second_percent in range(first_percent + 1, len(received_acid_percents)):
-    #         received['Amino acid percents per peptide correlation (Kendall)'].append(
-    #             statistics.kendalltau(received_acid_percents[first_percent],
-    #                                   received_acid_percents[second_percent]).correlation)
-    #     show_progress(label, 40, index / len(received_acid_percents))
-    #     index += 1
-    # print()
-    #
-    # label = 'Calculating amino acid percents Kendall correlation (missed peptides): '
-    # show_progress(label, 40, 0.0)
-    # index = 1
-    # for first_percent in range(0, len(missed_acid_percents)):
-    #     for second_percent in range(first_percent + 1, len(missed_acid_percents)):
-    #         missed['Amino acid percents per peptide correlation (Kendall)'].append(
-    #             statistics.kendalltau(missed_acid_percents[first_percent],
-    #                                   missed_acid_percents[second_percent]).correlation)
-    #     show_progress(label, 40, index / len(missed_acid_percents))
-    #     index += 1
-    # print()
+    print('Calculating amino acid compositions per peptide Pearson correlation (received peptides): ', end='')
+    received_per_peptide_correlations['Amino acid compositions per peptide correlation (Pearson)'] = \
+        convert_correlation_matrix_to_serie(received_acid_compounds.corr(method='pearson'), 'Amino acid compositions')
+    print('done')
+
+    print('Calculating amino acid compositions per peptide Pearson correlation (missed peptides): ', end='')
+    missed_per_peptide_correlations['Amino acid compositions per peptide correlation (Pearson)'] = \
+        convert_correlation_matrix_to_serie(missed_acid_compounds.corr(method='pearson'), 'Amino acid compositions')
+    print('done')
+
     #
     # label = 'Calculating amino acid compositions Kendall correlation (received peptides): '
     # show_progress(label, 40, 0.0)
@@ -390,8 +362,8 @@ def save_simple_statistics_to_csv(stats, file_name):
         file.write('name;mean;variance;skewness;kurtosis;std\n')
         for name in stats:
             file.write('{0};{1};{2};{3};{4};{5}\n'.format(name, stats[name]['mean'], stats[name]['variance'],
-                                                              stats[name]['skewness'], stats[name]['kurtosis'],
-                                                              stats[name]['std']))
+                                                          stats[name]['skewness'], stats[name]['kurtosis'],
+                                                          stats[name]['std']))
             show_progress(label, 40, index / len(stats))
             index += 1
     print()
