@@ -209,8 +209,8 @@ def fill_per_peptide_correlations(protein_records):
                 #     if moment['name'] != 'Polygly-polypro helix':
                 #         hydrophobic_moments.append(moment['moment'])
                 # missed_hydrophobic_moments.append(hydrophobic_moments)
-                show_progress(label, 35, index / total_missed_peptides_number)
-                index += 1
+            show_progress(label, 35, index / total_missed_peptides_number)
+            index += 1
     print()
 
     print('Calculating Kidera factors per peptide Pearson correlation (received peptides): ', end='')
