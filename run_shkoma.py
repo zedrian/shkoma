@@ -19,11 +19,6 @@ if __name__ == '__main__':
     correlation.fill_missed_peptide_records(protein_records)
     correlation.fill_peptide_parameters(protein_records)
 
-    user_choice = input('Do you want to save your protein records [Yes/No]? ')
-    if user_choice.upper() == 'YES':
-        folder_name = input('Please, enter folder name: ')
-        correlation.save_protein_records_to_folder(protein_records, folder_name)
-
     received_parameters, missed_parameters = statistics.fill_parameter_lists(protein_records)
     received_per_peptide_correlations, missed_per_peptide_correlations = statistics.fill_per_peptide_correlations(protein_records)
     received_statistics = statistics.calculate_simple_statistics(received_parameters, received_per_peptide_correlations)
@@ -38,3 +33,8 @@ if __name__ == '__main__':
     if user_choice.upper() == 'YES':
         file_name = input('Please, enter new file name: ')
         statistics.save_simple_statistics_to_csv(missed_statistics, file_name)
+
+    user_choice = input('Do you want to save your protein records [Yes/No]? ')
+    if user_choice.upper() == 'YES':
+        folder_name = input('Please, enter folder name: ')
+        correlation.save_protein_records_to_folder(protein_records, folder_name)
