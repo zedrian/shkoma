@@ -143,7 +143,7 @@ def fill_per_peptide_correlations(protein_records):
         for received_peptide_record in protein_record.received_peptide_records:
             kidera_factor_index = 0
             for kidera_factor in received_peptide_record.peptide_parameters.kidera_factors:
-                received_kidera_factors[kidera_factor_index][index-1] = kidera_factor['value']
+                received_kidera_factors[kidera_factor_index][index - 1] = kidera_factor['value']
                 kidera_factor_index += 1
             # acid_percents = []
             # for acid in 'AGVMDYNSWLFIKPQCERTH':
@@ -177,7 +177,7 @@ def fill_per_peptide_correlations(protein_records):
         for missed_peptide_record in protein_record.missed_peptide_records:
             kidera_factor_index = 0
             for kidera_factor in missed_peptide_record.peptide_parameters.kidera_factors:
-                missed_kidera_factors[kidera_factor_index][index-1] = kidera_factor['value']
+                missed_kidera_factors[kidera_factor_index][index - 1] = kidera_factor['value']
                 kidera_factor_index += 1
                 #     kidera_factors.append(kidera_factor['value'])
                 # missed_kidera_factors.append(kidera_factors)
@@ -207,15 +207,14 @@ def fill_per_peptide_correlations(protein_records):
     print()
 
     print('Calculating Kidera factors per peptide Pearson correlation (received peptides): ', end='')
-    received_per_peptide_correlations['Kidera factors'] = convert_correlation_matrix_to_serie(
-        received_kidera_factors.corr(method='pearson'), 'Kidera factors')
+    received_per_peptide_correlations['Kidera factors per peptide correlation (Pearson)'] = \
+        convert_correlation_matrix_to_serie(received_kidera_factors.corr(method='pearson'), 'Kidera factors')
     print('done')
 
     print('Calculating Kidera factors per peptide Pearson correlation (missed peptides): ', end='')
-    missed_per_peptide_correlations['Kidera factors'] = convert_correlation_matrix_to_serie(
-        missed_kidera_factors.corr(method='pearson'), 'Kidera factors')
+    missed_per_peptide_correlations['Kidera factors per peptide correlation (Pearson)'] = \
+        convert_correlation_matrix_to_serie(missed_kidera_factors.corr(method='pearson'), 'Kidera factors')
     print('done')
-
 
     # show_progress(label, 40, 0.0)
     # index = 1
