@@ -122,10 +122,12 @@ def fill_per_peptide_correlations(protein_records):
                                               dtype=float64))
     missed_kidera_factors = DataFrame(zeros((len(kidera_factor_names), total_missed_peptides_number),
                                             dtype=float64))
-    #
-    # received_acid_percents = []
-    # missed_acid_percents = []
-    #
+
+    received_acid_percents = DataFrame(zeros((len('AGVMDYNSWLFIKPQCERTH'), total_received_peptides_number),
+                                             dtype=float64))
+    missed_acid_percents = DataFrame(zeros((len('AGVMDYNSWLFIKPQCERTH'), total_missed_peptides_number),
+                                           dtype=float64))
+
     # received_acid_compounds = []
     # missed_acid_compounds = []
     #
@@ -142,13 +144,14 @@ def fill_per_peptide_correlations(protein_records):
         for received_peptide_record in protein_record.received_peptide_records:
             kidera_factor_index = 0
             for kidera_factor in received_peptide_record.peptide_parameters.kidera_factors:
-                received_kidera_factors[kidera_factor_index][index - 1] = kidera_factor['value']
+                received_kidera_factors[index-1][kidera_factor_index] = kidera_factor['value']
                 kidera_factor_index += 1
-            # acid_percents = []
-            # for acid in 'AGVMDYNSWLFIKPQCERTH':
-            #     acid_percents.append(received_peptide_record.peptide_parameters.amino_acid_percents[acid])
-            # received_acid_percents.append(acid_percents)
-            #
+
+            acid_index = 0
+            for acid in 'AGVMDYNSWLFIKPQCERTH':
+                received_acid_percents[index-1][acid_index] = received_peptide_record.peptide_parameters.amino_acid_percents[acid]
+                acid_index += 1
+
             # acid_compound = []
             # for group in received_peptide_record.peptide_parameters.amino_acids_composition:
             #     acid_compound.append(group['percent'])
@@ -176,15 +179,13 @@ def fill_per_peptide_correlations(protein_records):
         for missed_peptide_record in protein_record.missed_peptide_records:
             kidera_factor_index = 0
             for kidera_factor in missed_peptide_record.peptide_parameters.kidera_factors:
-                missed_kidera_factors[kidera_factor_index][index - 1] = kidera_factor['value']
+                missed_kidera_factors[index-1][kidera_factor_index] = kidera_factor['value']
                 kidera_factor_index += 1
-                #     kidera_factors.append(kidera_factor['value'])
-                # missed_kidera_factors.append(kidera_factors)
-                #
-                # acid_percents = []
-                # for acid in 'AGVMDYNSWLFIKPQCERTH':
-                #     acid_percents.append(missed_peptide_record.peptide_parameters.amino_acid_percents[acid])
-                # missed_acid_percents.append(acid_percents)
+
+            acid_index = 0
+            for acid in 'AGVMDYNSWLFIKPQCERTH':
+                missed_acid_percents[index-1][acid_index] = missed_peptide_record.peptide_parameters.amino_acid_percents[acid]
+                acid_index += 1
                 #
                 # acid_compound = []
                 # for group in missed_peptide_record.peptide_parameters.amino_acids_composition:
@@ -214,6 +215,15 @@ def fill_per_peptide_correlations(protein_records):
     missed_per_peptide_correlations['Kidera factors per peptide correlation (Pearson)'] = \
         convert_correlation_matrix_to_serie(missed_kidera_factors.corr(method='pearson'), 'Kidera factors')
     print('done')
+
+    print('Calculating amino acid percents per peptide Pearson correlation (received peptides): ', end='')
+    received_per_peptide_correlations['Amino acid percents per peptide correlation (Pearson)'] = \
+        convert_correlation_matrix_to_serie(received_acid_percents.corr(method='pearson'), 'Amino acid percents')
+    print('done')
+
+    print('Calculating amino acid percents per peptide Pearson correlation (missed peptides): ', end='')
+    missed_per_peptide_correlations['Amino acid percents per peptide correlation (Pearson)'] = \
+        convert_correlation_matrix_to_serie(missed_acid_percents.corr(method='pearson'), 'Amino acid percents')
 
     # show_progress(label, 40, 0.0)
     # index = 1
