@@ -20,11 +20,6 @@ def calculate_simple_statistics_for_serie(serie):
 
 
 def fill_parameter_lists(protein_records):
-    kidera_factor_labels = ['Kidera factor: {0}'.format(name) for name in kidera_factor_names]
-
-    for name in kidera_factor_labels:
-        peptide_parameter_names.append(name)
-
     total_received_peptides_number = 0
     total_missed_peptides_number = 0
     for protein_record in protein_records:
@@ -333,10 +328,21 @@ def save_simple_statistics_to_csv(stats, file_name):
     index = 1
     with open(file_name, 'w') as file:
         file.write('name;mean;variance;skewness;kurtosis;std\n')
-        for name in stats:
+        for name in peptide_parameter_names:
             file.write('{0};{1};{2};{3};{4};{5}\n'.format(name, stats[name]['mean'], stats[name]['variance'],
                                                           stats[name]['skewness'], stats[name]['kurtosis'],
                                                           stats[name]['std']))
             show_progress(label, 40, index / len(stats))
             index += 1
+        if len(stats) > len(peptide_parameter_names):
+            for name in per_peptide_correlation_parameter_names:
+                parameter_label = '{0} per peptide correlation (Pearson)'.format(name)
+                file.write('{0};{1};{2};{3};{4};{5}\n'.format(parameter_label,
+                                                              stats[parameter_label]['mean'],
+                                                              stats[parameter_label]['variance'],
+                                                              stats[parameter_label]['skewness'],
+                                                              stats[parameter_label]['kurtosis'],
+                                                              stats[parameter_label]['std']))
+                show_progress(label, 40, index / len(stats))
+                index += 1
     print()
