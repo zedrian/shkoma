@@ -87,8 +87,6 @@ def fill_parameter_lists(protein_records):
 
 
 def fill_per_peptide_correlations(protein_records):
-    per_peptide_correlation_parameter_names = ['Kidera factors', 'Amino acid percents', 'Amino acid compositions',
-                                               'Charges', 'Hydrophobic moments', 'Secondary structure fractions']
     per_peptide_correlation_parameter_labels = ['{0} per peptide correlation (Pearson)'.format(name) for name in
                                                 per_peptide_correlation_parameter_names]
 

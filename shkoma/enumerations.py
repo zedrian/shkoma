@@ -12,3 +12,6 @@ hydrophobic_moments_names = ['Alpha-helix', '3-10-helix', 'Pi-helix',
 peptide_parameter_names = ['Sequence length', 'Aromaticity', 'Instability',
                            'Isoelectric point', 'Molecular weight', 'Kyte plot',
                            'Aliphatic index', 'Boman index', 'Hydrophobicity']
+
+per_peptide_correlation_parameter_names = ['Kidera factors', 'Amino acid percents', 'Amino acid compositions',
+                                           'Charges', 'Hydrophobic moments', 'Secondary structure fractions']
