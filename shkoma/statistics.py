@@ -22,9 +22,6 @@ def calculate_simple_statistics_for_serie(serie):
 def fill_parameter_lists(protein_records):
     kidera_factor_labels = ['Kidera factor: {0}'.format(name) for name in kidera_factor_names]
 
-    peptide_parameter_names = ['Sequence length', 'Aromaticity', 'Instability',
-                               'Isoelectric point', 'Molecular weight', 'Kyte plot',
-                               'Aliphatic index', 'Boman index', 'Hydrophobicity']
     for name in kidera_factor_labels:
         peptide_parameter_names.append(name)
 

@@ -8,3 +8,7 @@ amino_acid_group_names = ['Small', 'Aliphatic', 'Aromatic',
 
 hydrophobic_moments_names = ['Alpha-helix', '3-10-helix', 'Pi-helix',
                              'Omega', 'Antiparallel beta-sheet', 'Parallel beta-sheet']
+
+peptide_parameter_names = ['Sequence length', 'Aromaticity', 'Instability',
+                           'Isoelectric point', 'Molecular weight', 'Kyte plot',
+                           'Aliphatic index', 'Boman index', 'Hydrophobicity']
