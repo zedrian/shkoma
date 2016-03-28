@@ -1,6 +1,7 @@
-from pandas import DataFrame, Series
 from numpy import zeros, float64
+from pandas import DataFrame, Series
 
+from shkoma.enumerations import *
 from shkoma.utility import show_progress
 
 
@@ -19,9 +20,6 @@ def calculate_simple_statistics_for_serie(serie):
 
 
 def fill_parameter_lists(protein_records):
-    kidera_factor_names = ['helix.bend.pref', 'side.chain.size', 'extended.str.pref',
-                           'hydrophobicity', 'double.bend.pref', 'partial.spec.vol',
-                           'flat.ext.pref', 'occurrence.alpha.reg', 'pK.C', 'surrounding.hydrop']
     kidera_factor_labels = ['Kidera factor: {0}'.format(name) for name in kidera_factor_names]
 
     peptide_parameter_names = ['Sequence length', 'Aromaticity', 'Instability',
@@ -92,10 +90,6 @@ def fill_parameter_lists(protein_records):
 
 
 def fill_per_peptide_correlations(protein_records):
-    kidera_factor_names = ['helix.bend.pref', 'side.chain.size', 'extended.str.pref',
-                           'hydrophobicity', 'double.bend.pref', 'partial.spec.vol',
-                           'flat.ext.pref', 'occurrence.alpha.reg', 'pK.C', 'surrounding.hydrop']
-
     per_peptide_correlation_parameter_names = ['Kidera factors', 'Amino acid percents', 'Amino acid compositions',
                                                'Charges', 'Hydrophobic moments', 'Secondary structure fractions']
     per_peptide_correlation_parameter_labels = ['{0} per peptide correlation (Pearson)'.format(name) for name in

@@ -4,6 +4,7 @@ from rpy2.robjects import r
 from numpy import arange
 
 from shkoma.additional_protein_parameter_data import *
+from shkoma.enumerations import *
 
 
 class PeptideParameters:
@@ -313,12 +314,8 @@ def calculate_kidera_factors(sequence):
     r('require(Peptides)')
     r('sequence = "{0}"'.format(sequence))
 
-    names = ['helix.bend.pref', 'side.chain.size', 'extended.str.pref',
-             'hydrophobicity', 'double.bend.pref', 'partial.spec.vol',
-             'flat.ext.pref', 'occurrence.alpha.reg', 'pK.C', 'surrounding.hydrop']
-
     factors = []
-    for name in names:
+    for name in kidera_factor_names:
         factor = {}
         factor['name'] = name
         factor['value'] = r('kidera(seq=sequence, factor="{0}")'.format(name))[0]
