@@ -130,8 +130,6 @@ def fill_per_peptide_correlations(protein_records):
     # received_charges = []
     # missed_charges = []
 
-    hydrophobic_moments_names = ['Alpha-helix', '3-10-helix', 'Pi-helix',
-                                 'Omega', 'Antiparallel beta-sheet', 'Parallel beta-sheet']
     received_hydrophobic_moments = DataFrame(zeros((len(hydrophobic_moments_names), total_received_peptides_number),
                                                    dtype=float64))
     missed_hydrophobic_moments = DataFrame(zeros((len(hydrophobic_moments_names), total_missed_peptides_number),
