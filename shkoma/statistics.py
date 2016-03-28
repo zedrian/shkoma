@@ -122,12 +122,9 @@ def fill_per_peptide_correlations(protein_records):
     missed_acid_percents = DataFrame(zeros((len('AGVMDYNSWLFIKPQCERTH'), total_missed_peptides_number),
                                            dtype=float64))
 
-    acid_group_names = ['Small', 'Aliphatic', 'Aromatic',
-                        'Non-polar', 'Polar', 'Charged',
-                        'Basic', 'Acidic']
-    received_acid_compounds = DataFrame(zeros((len(acid_group_names), total_received_peptides_number),
+    received_acid_compounds = DataFrame(zeros((len(amino_acid_group_names), total_received_peptides_number),
                                               dtype=float64))
-    missed_acid_compounds = DataFrame(zeros((len(acid_group_names), total_missed_peptides_number),
+    missed_acid_compounds = DataFrame(zeros((len(amino_acid_group_names), total_missed_peptides_number),
                                             dtype=float64))
 
     # received_charges = []
@@ -284,12 +281,14 @@ def fill_per_peptide_correlations(protein_records):
 
     print('Calculating secondary structure fractions per peptide Pearson correlation (received peptides): ', end='')
     received_per_peptide_correlations['Secondary structure fractions per peptide correlation (Pearson)'] = \
-        convert_correlation_matrix_to_serie(received_secondary_structure_fractions.corr(method='pearson'), 'Secondary structure fractions')
+        convert_correlation_matrix_to_serie(received_secondary_structure_fractions.corr(method='pearson'),
+                                            'Secondary structure fractions')
     print('done')
-    
+
     print('Calculating secondary structure fractions per peptide Pearson correlation (missed peptides): ', end='')
     missed_per_peptide_correlations['Secondary structure fractions per peptide correlation (Pearson)'] = \
-        convert_correlation_matrix_to_serie(missed_secondary_structure_fractions.corr(method='pearson'), 'Secondary structure fractions')
+        convert_correlation_matrix_to_serie(missed_secondary_structure_fractions.corr(method='pearson'),
+                                            'Secondary structure fractions')
     print('done')
 
     return received_per_peptide_correlations, missed_per_peptide_correlations
