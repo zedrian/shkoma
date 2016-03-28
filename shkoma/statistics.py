@@ -138,9 +138,13 @@ def fill_per_peptide_correlations(protein_records):
 
     # received_charges = []
     # missed_charges = []
-    #
-    # received_hydrophobic_moments = []
-    # missed_hydrophobic_moments = []
+
+    hydrophobic_moments_names = ['Alpha-helix', '3-10-helix', 'Pi-helix',
+                                 'Omega', 'Antiparallel beta-sheet', 'Parallel beta-sheet']
+    received_hydrophobic_moments = DataFrame(zeros((len(hydrophobic_moments_names), total_received_peptides_number),
+                                                   dtype=float64))
+    missed_hydrophobic_moments = DataFrame(zeros((len(hydrophobic_moments_names), total_missed_peptides_number),
+                                                 dtype=float64))
 
     label = 'Filling received peptides array-like parameter lists: '
     show_progress(label, 35, 0.0)
@@ -167,13 +171,13 @@ def fill_per_peptide_correlations(protein_records):
             # for charge in received_peptide_record.peptide_parameters.charges:
             #     charges.append(charge['charge'])
             # received_charges.append(charges)
-            #
-            # hydrophobic_moments = []
-            # for moment in received_peptide_record.peptide_parameters.hydrophobic_moments:
-            #     if moment['name'] != 'Polygly-polypro helix':
-            #         hydrophobic_moments.append(moment['moment'])
-            # received_hydrophobic_moments.append(hydrophobic_moments)
-            # kidera_factors = []
+
+            moment_index = 0
+            for moment in received_peptide_record.peptide_parameters.hydrophobic_moments:
+                if moment['name'] != 'Polygly-polypro helix':
+                    received_hydrophobic_moments[index-1][moment_index] = moment['moment']
+                    group_index += 1
+
             show_progress(label, 35, index / total_received_peptides_number)
             index += 1
     print()
@@ -204,11 +208,12 @@ def fill_per_peptide_correlations(protein_records):
                 #     charges.append(charge['charge'])
                 # missed_charges.append(charges)
                 #
-                # hydrophobic_moments = []
-                # for moment in missed_peptide_record.peptide_parameters.hydrophobic_moments:
-                #     if moment['name'] != 'Polygly-polypro helix':
-                #         hydrophobic_moments.append(moment['moment'])
-                # missed_hydrophobic_moments.append(hydrophobic_moments)
+            moment_index = 0
+            for moment in missed_peptide_record.peptide_parameters.hydrophobic_moments:
+                if moment['name'] != 'Polygly-polypro helix':
+                    missed_hydrophobic_moments[index-1][moment_index] = moment['moment']
+                    group_index += 1
+
             show_progress(label, 35, index / total_missed_peptides_number)
             index += 1
     print()
@@ -244,41 +249,6 @@ def fill_per_peptide_correlations(protein_records):
     print('done')
 
     #
-    # label = 'Calculating amino acid compositions Kendall correlation (received peptides): '
-    # show_progress(label, 40, 0.0)
-    # index = 1
-    # for first_compound in range(0, len(received_acid_compounds)):
-    #     for second_compound in range(first_compound + 1, len(received_acid_compounds)):
-    #         received['Amino acid compositions per peptide correlation (Kendall)'].append(
-    #             statistics.kendalltau(received_acid_compounds[first_compound],
-    #                                   received_acid_compounds[second_compound]).correlation)
-    #     show_progress(label, 40, index / len(received_acid_compounds))
-    #     index += 1
-    # print()
-    #
-    # label = 'Calculating amino acid compositions Kendall correlation (missed peptides): '
-    # show_progress(label, 40, 0.0)
-    # index = 1
-    # for first_compound in range(0, len(missed_acid_compounds)):
-    #     for second_compound in range(first_compound + 1, len(missed_acid_compounds)):
-    #         missed['Amino acid compositions per peptide correlation (Kendall)'].append(
-    #             statistics.kendalltau(missed_acid_compounds[first_compound],
-    #                                   missed_acid_compounds[second_compound]).correlation)
-    #     show_progress(label, 40, index / len(missed_acid_compounds))
-    #     index += 1
-    # print()
-    #
-    # label = 'Calculating charges Kendall correlation (received peptides): '
-    # show_progress(label, 40, 0.0)
-    # index = 1
-    # for first_charges in range(0, len(received_charges)):
-    #     for second_charges in range(first_charges + 1, len(received_charges)):
-    #         received['Charges per peptide correlation (Kendall)'].append(
-    #             statistics.kendalltau(received_charges[first_charges], received_charges[second_charges]).correlation)
-    #     show_progress(label, 40, index / len(received_charges))
-    #     index += 1
-    # print()
-    #
     # label = 'Calculating charges Kendall correlation (missed peptides): '
     # show_progress(label, 40, 0.0)
     # index = 1
@@ -289,7 +259,17 @@ def fill_per_peptide_correlations(protein_records):
     #     show_progress(label, 40, index / len(missed_charges))
     #     index += 1
     # print()
-    #
+
+    print('Calculating hydrophobic moments per peptide Pearson correlation (received peptides): ', end='')
+    received_per_peptide_correlations['Hydrophobic moments per peptide correlation (Pearson)'] = \
+        convert_correlation_matrix_to_serie(received_hydrophobic_moments.corr(method='pearson'), 'Hydrophobic moments')
+    print('done')
+
+    print('Calculating hydrophobic moments per peptide Pearson correlation (missed peptides): ', end='')
+    missed_per_peptide_correlations['Hydrophobic moments per peptide correlation (Pearson)'] = \
+        convert_correlation_matrix_to_serie(missed_hydrophobic_moments.corr(method='pearson'), 'Hydrophobic moments')
+    print('done')
+
     # label = 'Calculating hydrophobic moments Kendall correlation (received peptides): '
     # show_progress(label, 40, 0.0)
     # index = 1
@@ -300,17 +280,7 @@ def fill_per_peptide_correlations(protein_records):
     #                                   received_hydrophobic_moments[second_moments]).correlation)
     #     show_progress(label, 40, index / len(received_hydrophobic_moments))
     #     index += 1
-    #
-    # label = 'Calculating hydrophobic moments Kendall correlation (missed peptides): '
-    # show_progress(label, 40, 0.0)
-    # index = 1
-    # for first_moments in range(0, len(missed_hydrophobic_moments)):
-    #     for second_moments in range(first_moments + 1, len(missed_hydrophobic_moments)):
-    #         missed['Hydrophobic moments per peptide correlation (Kendall)'].append(
-    #             statistics.kendalltau(missed_hydrophobic_moments[first_moments],
-    #                                   missed_hydrophobic_moments[second_moments]).correlation)
-    #     show_progress(label, 40, index / len(missed_hydrophobic_moments))
-    #     index += 1
+
     return received_per_peptide_correlations, missed_per_peptide_correlations
 
 
