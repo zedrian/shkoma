@@ -97,7 +97,7 @@ def fill_per_peptide_correlations(protein_records):
                            'flat.ext.pref', 'occurrence.alpha.reg', 'pK.C', 'surrounding.hydrop']
 
     per_peptide_correlation_parameter_names = ['Kidera factors', 'Amino acid percents', 'Amino acid compositions',
-                                               'Charges', 'Hydrophobic moments']
+                                               'Charges', 'Hydrophobic moments', 'Secondary structure fractions']
     per_peptide_correlation_parameter_labels = ['{0} per peptide correlation (Pearson)'.format(name) for name in
                                                 per_peptide_correlation_parameter_names]
 
@@ -146,6 +146,14 @@ def fill_per_peptide_correlations(protein_records):
     missed_hydrophobic_moments = DataFrame(zeros((len(hydrophobic_moments_names), total_missed_peptides_number),
                                                  dtype=float64))
 
+    secondary_structure_fraction_names = ['Helix', 'Turn', 'Sheet']
+    received_secondary_structure_fractions = DataFrame(
+        zeros((len(secondary_structure_fraction_names), total_received_peptides_number),
+              dtype=float64))
+    missed_secondary_structure_fractions = DataFrame(
+        zeros((len(secondary_structure_fraction_names), total_missed_peptides_number),
+              dtype=float64))
+
     label = 'Filling received peptides array-like parameter lists: '
     show_progress(label, 35, 0.0)
     index = 1
@@ -175,8 +183,13 @@ def fill_per_peptide_correlations(protein_records):
             moment_index = 0
             for moment in received_peptide_record.peptide_parameters.hydrophobic_moments:
                 if moment['name'] != 'Polygly-polypro helix':
-                    received_hydrophobic_moments[index-1][moment_index] = moment['moment']
+                    received_hydrophobic_moments[index - 1][moment_index] = moment['moment']
                     group_index += 1
+
+            fraction_index = 0
+            for fraction in received_peptide_record.peptide_parameters.secondary_structure_fraction:
+                received_secondary_structure_fractions[index - 1][fraction_index] = fraction['value']
+                fraction_index += 1
 
             show_progress(label, 35, index / total_received_peptides_number)
             index += 1
@@ -211,8 +224,13 @@ def fill_per_peptide_correlations(protein_records):
             moment_index = 0
             for moment in missed_peptide_record.peptide_parameters.hydrophobic_moments:
                 if moment['name'] != 'Polygly-polypro helix':
-                    missed_hydrophobic_moments[index-1][moment_index] = moment['moment']
+                    missed_hydrophobic_moments[index - 1][moment_index] = moment['moment']
                     group_index += 1
+
+            fraction_index = 0
+            for fraction in missed_peptide_record.peptide_parameters.secondary_structure_fraction:
+                missed_secondary_structure_fractions[index - 1][fraction_index] = fraction['value']
+                fraction_index += 1
 
             show_progress(label, 35, index / total_missed_peptides_number)
             index += 1
@@ -270,16 +288,15 @@ def fill_per_peptide_correlations(protein_records):
         convert_correlation_matrix_to_serie(missed_hydrophobic_moments.corr(method='pearson'), 'Hydrophobic moments')
     print('done')
 
-    # label = 'Calculating hydrophobic moments Kendall correlation (received peptides): '
-    # show_progress(label, 40, 0.0)
-    # index = 1
-    # for first_moments in range(0, len(received_hydrophobic_moments)):
-    #     for second_moments in range(first_moments + 1, len(received_hydrophobic_moments)):
-    #         received['Hydrophobic moments per peptide correlation (Kendall)'].append(
-    #             statistics.kendalltau(received_hydrophobic_moments[first_moments],
-    #                                   received_hydrophobic_moments[second_moments]).correlation)
-    #     show_progress(label, 40, index / len(received_hydrophobic_moments))
-    #     index += 1
+    print('Calculating secondary structure fractions per peptide Pearson correlation (received peptides): ', end='')
+    received_per_peptide_correlations['Secondary structure fractions per peptide correlation (Pearson)'] = \
+        convert_correlation_matrix_to_serie(received_secondary_structure_fractions.corr(method='pearson'), 'Secondary structure fractions')
+    print('done')
+    
+    print('Calculating secondary structure fractions per peptide Pearson correlation (missed peptides): ', end='')
+    missed_per_peptide_correlations['Secondary structure fractions per peptide correlation (Pearson)'] = \
+        convert_correlation_matrix_to_serie(missed_secondary_structure_fractions.corr(method='pearson'), 'Secondary structure fractions')
+    print('done')
 
     return received_per_peptide_correlations, missed_per_peptide_correlations
 
