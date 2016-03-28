@@ -4,7 +4,7 @@ Protein data analysis.
 
 
 ## Requirements
-* **Python 3** with installed `numpy`, `biopython`, `rpy2` and `statistics` packages
+* **Python 3** with installed `numpy`, `biopython` and `rpy2` packages
 * **R** with installed `Peptides` package
 
 ## Usage example
