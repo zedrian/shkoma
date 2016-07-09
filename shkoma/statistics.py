@@ -1,3 +1,4 @@
+from sys import stdout
 from numpy import zeros, float64
 from pandas import DataFrame, Series
 
@@ -19,6 +20,7 @@ def calculate_simple_statistics_for_serie(serie):
     return stats
 
 
+# TODO: reorganize PeptideParameters to allow dictionary-like access
 def fill_parameter_lists(protein_records):
     total_received_peptides_number = 0
     total_missed_peptides_number = 0
@@ -33,7 +35,7 @@ def fill_parameter_lists(protein_records):
 
     # fill received peptides parameters
     label = 'Filling received peptides parameter lists: '
-    show_progress(label, 40, 0.0)
+    show_progress(label, 32, 0.0)
     index = 1
     for protein_record in protein_records:
         for received_peptide_record in protein_record.received_peptide_records:
@@ -51,6 +53,67 @@ def fill_parameter_lists(protein_records):
             for kidera_factor in received_peptide_record.peptide_parameters.kidera_factors:
                 received_parameters['Kidera factor: {0}'.format(kidera_factor['name'])][index] = kidera_factor['value']
 
+            show_progress(label, 32, index / total_received_peptides_number)
+            index += 1
+    print()
+
+    # fill missed peptides parameters
+    label = 'Filling missed peptides parameter lists: '
+    show_progress(label, 32, 0.0)
+    index = 1
+    for protein_record in protein_records:
+        for missed_peptide_record in protein_record.missed_peptide_records:
+            missed_parameters['Sequence length'][index] = missed_peptide_record.peptide_parameters.sequence_length
+            missed_parameters['Aromaticity'][index] = missed_peptide_record.peptide_parameters.aromaticity
+            missed_parameters['Instability'][index] = missed_peptide_record.peptide_parameters.instability
+            missed_parameters['Isoelectric point'][index] = missed_peptide_record.peptide_parameters.isoelectric_point
+            missed_parameters['Molecular weight'][index] = missed_peptide_record.peptide_parameters.molecular_weight
+            missed_parameters['Kyte plot'][index] = missed_peptide_record.peptide_parameters.kyte_plot
+            missed_parameters['Aliphatic index'][index] = missed_peptide_record.peptide_parameters.aliphatic_index
+            missed_parameters['Boman index'][index] = missed_peptide_record.peptide_parameters.boman_index
+            missed_parameters['Hydrophobicity'][index] = missed_peptide_record.peptide_parameters.hydrophobicity
+
+            for kidera_factor in missed_peptide_record.peptide_parameters.kidera_factors:
+                missed_parameters['Kidera factor: {0}'.format(kidera_factor['name'])][index] = kidera_factor['value']
+
+            show_progress(label, 32, index / total_missed_peptides_number)
+            index += 1
+    print()
+
+    return received_parameters, missed_parameters
+
+
+def fill_parameter_lists_for_classificator(protein_records):
+    total_received_peptides_number = 0
+    total_missed_peptides_number = 0
+    for protein_record in protein_records:
+        total_received_peptides_number += len(protein_record.received_peptide_records)
+        total_missed_peptides_number += len(protein_record.missed_peptide_records)
+
+    received_parameters = DataFrame(
+        zeros((total_received_peptides_number, len(peptide_parameter_names_for_classificator)),
+              dtype=float64), columns=peptide_parameter_names_for_classificator)
+    missed_parameters = DataFrame(zeros((total_missed_peptides_number, len(peptide_parameter_names_for_classificator)),
+                                        dtype=float64), columns=peptide_parameter_names_for_classificator)
+
+    # fill received peptides parameters
+    label = 'Filling received peptides parameter lists: '
+    show_progress(label, 40, 0.0)
+    index = 1
+    for protein_record in protein_records:
+        for received_peptide_record in protein_record.received_peptide_records:
+            received_parameters['Sequence length'][index] = received_peptide_record.peptide_parameters.sequence_length
+            received_parameters['Aromaticity'][index] = received_peptide_record.peptide_parameters.aromaticity
+            received_parameters['Instability'][index] = received_peptide_record.peptide_parameters.instability
+            received_parameters['Isoelectric point'][index] = \
+                received_peptide_record.peptide_parameters.isoelectric_point
+            received_parameters['Kyte plot'][index] = received_peptide_record.peptide_parameters.kyte_plot
+            received_parameters['Aliphatic index'][index] = received_peptide_record.peptide_parameters.aliphatic_index
+            received_parameters['Boman index'][index] = received_peptide_record.peptide_parameters.boman_index
+            received_parameters['Hydrophobicity'][index] = received_peptide_record.peptide_parameters.hydrophobicity
+            for kidera_factor in received_peptide_record.peptide_parameters.kidera_factors:
+                received_parameters['Kidera factor: {0}'.format(kidera_factor['name'])][index] = kidera_factor['value']
+
             show_progress(label, 40, index / total_received_peptides_number)
             index += 1
     print()
@@ -65,7 +128,6 @@ def fill_parameter_lists(protein_records):
             missed_parameters['Aromaticity'][index] = missed_peptide_record.peptide_parameters.aromaticity
             missed_parameters['Instability'][index] = missed_peptide_record.peptide_parameters.instability
             missed_parameters['Isoelectric point'][index] = missed_peptide_record.peptide_parameters.isoelectric_point
-            missed_parameters['Molecular weight'][index] = missed_peptide_record.peptide_parameters.molecular_weight
             missed_parameters['Kyte plot'][index] = missed_peptide_record.peptide_parameters.kyte_plot
             missed_parameters['Aliphatic index'][index] = missed_peptide_record.peptide_parameters.aliphatic_index
             missed_parameters['Boman index'][index] = missed_peptide_record.peptide_parameters.boman_index
@@ -322,18 +384,15 @@ def calculate_simple_statistics(parameters, per_peptide_correlations=None):
 
 
 def save_simple_statistics_to_csv(stats, file_name):
-    label = 'Saving simple statistics to \'{0}\': '.format(file_name)
-    show_progress(label, 40, 0.0)
+    print('Saving simple statistics to \'{0}\': '.format(file_name), end='')
+    stdout.flush()
 
-    index = 1
     with open(file_name, 'w') as file:
         file.write('name;mean;variance;skewness;kurtosis;std\n')
         for name in peptide_parameter_names:
             file.write('{0};{1};{2};{3};{4};{5}\n'.format(name, stats[name]['mean'], stats[name]['variance'],
                                                           stats[name]['skewness'], stats[name]['kurtosis'],
                                                           stats[name]['std']))
-            show_progress(label, 40, index / len(stats))
-            index += 1
         if len(stats) > len(peptide_parameter_names):
             for name in per_peptide_correlation_parameter_names:
                 parameter_label = '{0} per peptide correlation (Pearson)'.format(name)
@@ -343,6 +402,19 @@ def save_simple_statistics_to_csv(stats, file_name):
                                                               stats[parameter_label]['skewness'],
                                                               stats[parameter_label]['kurtosis'],
                                                               stats[parameter_label]['std']))
-                show_progress(label, 40, index / len(stats))
-                index += 1
-    print()
+    print('done')
+
+
+def save_peptide_parameter_lists_to_csv(parameter_lists, file_name):
+    print('Saving peptide parameters to \'{0}\': '.format(file_name), end='')
+    stdout.flush()
+    parameter_lists.to_csv(file_name)
+    print('done')
+
+
+def load_peptide_parameter_lists_from_csv(file_name):
+    print('Loading peptide parameters from \'{0}\': '.format(file_name), end='')
+    stdout.flush()
+    parameters = DataFrame.from_csv(file_name)
+    print('done')
+    return parameters

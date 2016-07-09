@@ -3,7 +3,6 @@ kidera_factor_names = ['helix.bend.pref', 'side.chain.size', 'extended.str.pref'
                        'flat.ext.pref', 'occurrence.alpha.reg', 'pK.C', 'surrounding.hydrop']
 kidera_factor_labels = ['Kidera factor: {0}'.format(name) for name in kidera_factor_names]
 
-
 amino_acid_group_names = ['Small', 'Aliphatic', 'Aromatic',
                           'Non-polar', 'Polar', 'Charged',
                           'Basic', 'Acidic']
@@ -19,3 +18,9 @@ for name in kidera_factor_labels:
 
 per_peptide_correlation_parameter_names = ['Kidera factors', 'Amino acid percents', 'Amino acid compositions',
                                            'Charges', 'Hydrophobic moments', 'Secondary structure fractions']
+
+peptide_parameter_names_for_classificator = ['Sequence length', 'Aromaticity', 'Instability',
+                                             'Isoelectric point', 'Kyte plot', 'Aliphatic index', 'Boman index',
+                                             'Hydrophobicity']
+for name in kidera_factor_labels:
+    peptide_parameter_names_for_classificator.append(name)
