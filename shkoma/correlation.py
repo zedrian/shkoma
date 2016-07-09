@@ -15,12 +15,10 @@ from shkoma.utility import b2str, show_progress
 
 # load all main data as table from .csv file
 def load_main_data_from_csv(file_name):
-    label = 'Loading main data from \'{0}\': '.format(file_name)
-    show_progress(label, 40, 0.0)
+    print('Loading main data from \'{0}\': '.format(file_name), end='')
 
     main_data = genfromtxt(file_name, dtype=None, delimiter=';', names=True)
-    show_progress(label, 40, 1.0)
-    print()
+    print('done')
 
     return main_data
 
@@ -29,7 +27,7 @@ def load_main_data_from_csv(file_name):
 def construct_proteins(main_data):
     proteins = []
     label = 'Constructing proteins from main data: '
-    show_progress(label, 40, 0.0)
+    show_progress(label, 35, 0.0)
 
     # 1. fill list with unique proteins
     index = 1
@@ -41,7 +39,7 @@ def construct_proteins(main_data):
         if current_protein not in proteins:
             proteins.append(current_protein)
 
-        show_progress(label, 40, index / len(main_data))
+        show_progress(label, 35, index / len(main_data))
         index += 1
     print()
 
@@ -146,11 +144,11 @@ def construct_protein_records(proteins, main_data):
 
     # 2. sort peptide records by length (starting from longest)
     label = 'Filling received peptide records: '
-    show_progress(label, 40, 0.0)
+    show_progress(label, 35, 0.0)
     index = 1
     for protein_record in protein_records:
         protein_record.received_peptide_records = sorted(protein_record.received_peptide_records, key=lambda peptide_record: len(peptide_record.peptide.sequence), reverse=True)
-        show_progress(label, 40, index / len(protein_records))
+        show_progress(label, 35, index / len(protein_records))
         index += 1
     print()
 
@@ -160,11 +158,11 @@ def construct_protein_records(proteins, main_data):
 # fill computational protein parameters for each protein record
 def fill_protein_parameters(protein_records):
     label = 'Filling protein parameters: '
-    show_progress(label, 40, 0.0)
+    show_progress(label, 35, 0.0)
     index = 1
     for protein_record in protein_records:
         protein_record.protein_parameters = ProteinParameters(protein_record.protein.sequence)
-        show_progress(label, 40, index / len(protein_records))
+        show_progress(label, 35, index / len(protein_records))
         index += 1
     print()
 
@@ -188,6 +186,9 @@ def fill_peptide_parameters(protein_records):
         print()
 
         # 2. process then missed peptide records
+        if len(protein_record.missed_peptide_records) == 0:
+            protein_index += 1
+            continue
         label = '{0:>25}: '.format('Missed peptides ({0})'.format(len(protein_record.missed_peptide_records)))
         show_progress(label, 40, 0.0)
         peptide_index = 1
