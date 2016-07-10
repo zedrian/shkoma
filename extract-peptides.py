@@ -1,6 +1,6 @@
-from os import listdir
-from os.path import isfile, join
-from sys import argv
+from os import listdir, makedirs
+from os.path import isfile, join, exists
+from sys import argv, stdout
 
 from shkoma import correlation, statistics
 
@@ -17,16 +17,22 @@ def print_usage():
     print('  [experiment].peptides.csv and [experiment].statistics.csv,')
     print('  where [experiment] - file name from experiments_folder')
     print('----------------------------------------------------------------------')
+    stdout.flush()
 
 
 def main():
-    if len(argv) == 1:
+    if len(argv) < 3:
         print_usage()
         experiments_folder = input('Enter folder name with experimental data: ')
         results_folder = input('Enter folder name for results: ')
     else:
         experiments_folder = argv[1]
         results_folder = argv[2]
+        print('Experimental data will be loaded from \'{0}\''.format(experiments_folder))
+        print('Results will be saved to \'{0}\''.format(results_folder))
+        stdout.flush()
+    if not exists(results_folder):
+        makedirs(results_folder)
     experiments_files = [f for f in listdir(experiments_folder) if isfile(join( experiments_folder, f))]
 
     for experiment_file in experiments_files:
